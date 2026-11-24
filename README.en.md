@@ -14,6 +14,10 @@ Introduce the concrete context/problem, relationships between concepts, and read
 
 Meetings distinguish discussion, suggestions, confirmed matters and actions. Papers distinguish author claims, evidence, limitations and model inferences. Courses explain concepts through examples. Retain source locations and never invent owners, deadlines or experimental values.
 
+Map source units to body topics, develop the main content first, then author the introduction and synthesis around it. Do not substitute generic note-taking advice for the source's actual substance. Improve the skill before generating a separate new note from raw sources; retain the old output as a baseline rather than hand-polishing it and attributing the result to the skill.
+
+`scripts/audit_note.py` diagnoses body/framing distribution and source-coverage references. It is not a quality score: factual fidelity, useful explanation and status accuracy still need source-grounded review. See [the content-quality workflow](skills/notemaker/references/content-quality.md).
+
 ## Notebook-style editing
 
 - Cell controls appear only after Edit.
@@ -63,7 +67,7 @@ The public example is fictional interface material. External-source cases and pr
 npm ci
 npx playwright install chromium
 python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
-python -m unittest discover -s tests -p test_server.py
+python -m unittest discover -s tests -p 'test_*.py'
 npm test
 ```
 

@@ -14,6 +14,10 @@
 
 会议笔记区分讨论、建议、已确认事项和行动；论文区分作者主张、证据、局限与整理者推断；课程用例子解释概念。来源中的页码、幻灯片、段落或时间位置应保留，没有的负责人、期限或实验数值不编造。
 
+生成时先建立「原文单元 → 正文小节」覆盖表，先展开正文，再写介绍和结尾归纳。正文必须保留材料的具体内容，不能拿一篇“如何读课件/做会议记录”的通用文章代替。改进 skill 时，先更新规则，再从原材料生成独立新稿，与旧稿对照，不把直接润色旧稿当作 skill 效果。
+
+`scripts/audit_note.py` 可检查正文与框架文字的分布、来源覆盖映射和遗漏说明。它提供诊断，不是内容质量分数；仍需对照原文检查事实、解释和状态。详见 [内容质量流程](skills/notemaker/references/content-quality.md)。
+
 ## 像 Notebook 一样自由编辑
 
 - 阅读模式不显示单元格编辑控件；点击 Edit 后才解锁。
@@ -70,7 +74,7 @@ python skills/notemaker/scripts/build_note.py edited-note.html --extract recover
 npm ci
 npx playwright install chromium
 python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
-python -m unittest discover -s tests -p test_server.py
+python -m unittest discover -s tests -p 'test_*.py'
 npm test
 ```
 

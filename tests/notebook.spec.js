@@ -120,15 +120,19 @@ test('mobile reading and editing fit the viewport',async({page})=>{
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.locator('#edit').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
-test('actual-source cases have developed content and save real cell edits to their bound files',async({page})=>{
-  const manifest=path.join(ROOT,'private-preview/case-manifest.json');let cases;
+test('revised-skill source cases retain mapped details and save real cell edits to their bound files',async({page})=>{
+  const manifest=path.join(ROOT,'private-preview/skill-evaluation-manifest.json');let cases;
   try{cases=JSON.parse(await fs.readFile(manifest,'utf8'));}catch{test.skip(true,'External source cases are not redistributed with the public test suite.');return;}
   for(const entry of cases){
     const live=await launch(entry.html);
     try{
       await page.goto(live.url);const model=await page.evaluate(()=>Notemaker.getModel());
-      for(const section of model.sections){expect(section.intro.length).toBeGreaterThan(220);expect(section.summary.length).toBeGreaterThan(220);await navigate(page,section.id);await expect(page.locator('.note-cell')).not.toHaveCount(0);await navigate(page,'summary:'+section.id);await expect(page.locator('.overview-summary')).toBeVisible();}
-      await navigate(page,model.sections[0].id);await page.screenshot({path:path.join(ROOT,'private-preview/'+entry.name+'-preview.png'),fullPage:true});
+      expect(entry.old_note_unchanged).toBe(true);expect(entry.audit.coverage_errors).toEqual([]);
+      const coverage=JSON.parse(await fs.readFile(entry.coverage,'utf8'));
+      for(const unit of coverage.units){if(unit.status==='covered')for(const id of unit.topics)expect(model.topics.some(t=>t.id===id)).toBe(true);else expect(unit.reason).toBeTruthy();}
+      for(const section of model.sections){await navigate(page,section.id);await expect(page.locator('.note-cell')).not.toHaveCount(0);const last=model.topics.filter(t=>t.section===section.id).at(-1);await navigate(page,last.id);await expect(page.locator('.page-nav a').last()).toHaveAttribute('href','#summary:'+section.id);await navigate(page,'summary:'+section.id);await expect(page.locator('.overview-summary')).toBeVisible();}
+      for(const query of entry.reviewQueries){await navigate(page,query.topic);for(const detail of query.contains)await expect(page.locator('#notebook-cells')).toContainText(detail);}
+      await navigate(page,entry.reviewQueries[0].topic);await page.screenshot({path:path.join(ROOT,'private-preview/'+entry.name+'-body-preview.png'),fullPage:true});
       await page.locator('#edit').click();await page.locator('[data-cell-add=code]').click();await page.locator('.cell-source').last().fill('# Persisted test for '+entry.name);await save(page);await page.reload();await expect(page.locator('#notebook-cells')).toContainText('Persisted test for '+entry.name);
     }finally{live.process.kill();}
   }
