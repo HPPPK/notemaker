@@ -2,76 +2,71 @@
 
 **[中文](README.md) · [English](README.en.md)**
 
-Turn source material into visual notes that explain the big picture before the details. Open offline, edit directly, and explicitly save a complete HTML file to your computer.
+Create substantial visual notes from real sources. Click **Edit** for notebook-style cells; click **Save** to write back to the currently bound HTML.
 
-Notemaker is an installable AI skill with a small, framework-free HTML generator. Inputs may include documents, slide decks, courses, meeting transcripts, papers, user notes, search results, or model-written summaries. Its structure adapts to the material rather than imposing a research curriculum.
+Inputs may be documents, PPTX decks, courses, minutes, papers, search findings, or model-authored material. Structure follows the source rather than a fixed Day-by-Day curriculum. Every section uses **introduction → content subsections → a final summary subsection**.
 
-![Notemaker demo](docs/demo-preview.png)
+![Notemaker preview](docs/demo-preview.png)
 
-## What it produces
+## Substantive introductions and summaries
 
-- An **overall introduction and content map first**, with the note-wide synthesis at the end.
-- Every major section follows **introduction → content subsections → a final summary subsection**. Introductions establish context/scope/questions; closing summaries connect the material, conclusions, and open issues.
-- Sections may represent course modules, meeting agenda items, literature themes, or project areas. Names and summary content adapt to the sources; Day labels are only one possible example.
-- Section/topic navigation, search, zoomable figures, code, tables, printing, and a mobile directory.
-- Source labels and a distinction between source facts, model synthesis, and unresolved questions.
-- Edit mode for titles, introductions, summaries, body text, code, captions, new sections/topics, embedded local images, theme, accent color, and font size.
-- One self-contained HTML with embedded data, images, CSS, and JavaScript. Reading/editing requires no server, account, CDN, or network.
+Introduce the concrete context/problem, relationships between concepts, and reading route. Closing summaries connect the material, compare methods or discussion status, retain evidence/limitations, and identify useful next checks. Complex sections need developed paragraphs and relevant tables/figures, not a one-sentence slogan. Adapt depth to the source rather than padding to a universal word count.
 
-## Where does Save actually write?
+Meetings distinguish discussion, suggestions, confirmed matters and actions. Papers distinguish author claims, evidence, limitations and model inferences. Courses explain concepts through examples. Retain source locations and never invent owners, deadlines or experimental values.
 
-**Browser storage and a success toast are not file persistence.**
+## Notebook-style editing
 
-| Available capability | Save behavior |
-| --- | --- |
-| Supported and permitted file picker API | Choose a target file on the first save. Mark saved only after write and close complete. Subsequent saves in the same session can reuse that handle; reopening requires choosing again. |
-| No file picker API | Download a new, complete edited HTML. The UI reports “download requested; reopen to verify,” never “original overwritten.” |
-| Cancelled picker, denied permission, failed write/close | Preserve the draft and unsaved state. Retry or explicitly export a copy. |
+- Cell controls appear only after Edit.
+- Introduction, body and summary cells support insertion above/below, editing, duplication, reordering, deletion, clearing and restarting.
+- Text/figure cells offer visual editing and optional HTML source editing. Code cells are text editors and **never execute code**.
+- Add/delete/reorder sections and topics, embed local images, and customize titles/theme/accent/font size.
+- Cancel restores the pre-edit draft. Nothing autosaves.
 
-A standalone HTML cannot overwrite its own path automatically in every browser. Safari/Firefox configurations without the picker can still export a complete HTML; users can replace the old file themselves. There is no automatic saving. Cancel discards the current editing session. Because the page cannot observe download completion reliably, an exported copy does not clear its unsaved warning.
+## Save writes to the current source
 
-## Install the skill
+The paired launcher binds the existing HTML. Save backs up the previous bytes, atomically writes the same path, verifies the result, and only then acknowledges success. No file picker or repeated location choice.
 
-Copy `skills/notemaker/` into `~/.codex/skills/notemaker/`, or use your AI client's GitHub skill installer with this repository and subdirectory.
+A **Python standard-library local service** enables this. It binds only loopback and one file, checks session/origin/model and file revision, and preserves drafts on conflicts or failures. Backups live in `.notemaker-backups/`.
 
-Example requests:
+Opening the standalone HTML still supports offline reading/editing. Browsers cannot silently overwrite that file in every configuration, so Save in file:// mode explains how to open the paired launcher. Explicit **Export copy** remains a separate download action, not an imitation of in-place saving.
 
-> Use $notemaker to turn this slide deck and my course notes into visual HTML. Introduce each module, develop its examples, and finish with a dedicated summary subsection. Preserve sources and let me edit and save locally.
+## Install and run
 
-> Use $notemaker for these meeting notes. Separate discussion, decisions, action items, and unresolved questions. Do not invent owners or dates.
+Copy `skills/notemaker/` to `~/.codex/skills/notemaker/`, or download the skill archive from Releases.
 
-> Use $notemaker to synthesize these papers and your search findings. Organize around questions, methods, evidence, and limitations; label model inferences.
-
-## Generator and demo
-
-Only Python 3.10+ and its standard library are needed to build. Node is only for development tests.
+> Use $notemaker to read these slides, minutes or papers. Develop each section's introduction, then the details, then its synthesis. Retain evidence and provide editable cells with one-click in-place saving.
 
 ```sh
-python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
+python skills/notemaker/scripts/build_note.py note.json --output note.html
+python skills/notemaker/scripts/serve_note.py note.html --create-launchers
+python skills/notemaker/scripts/serve_note.py note.html
 ```
 
-Open `examples/general-note.html`. All course/meeting/literature examples are fictional; no private user material is published.
+Double-click the generated Windows `.cmd` or macOS/Linux `.command`, or use the last command directly. Keep its terminal open; Ctrl+C stops it. Requires Python 3.10+ for editing with in-place saving. The standalone reader requires no environment. Move HTML, launcher and `_notemaker_runtime/` together. Providing a portable launcher is not evidence of testing macOS.
 
-The AI using the skill reads sources and authors a grounded model according to the [schema](skills/notemaker/references/content-and-schema.md). The generator packages that model; it does not itself parse slides, search the web, or call an AI API.
+## Source reading and later updates
 
-To continue from a file edited and saved in the browser:
+The AI using the skill reads, verifies and explains sources; the generator does not call an AI API. Helpers retain input provenance:
 
 ```sh
+python skills/notemaker/scripts/read_material.py lecture.pptx --output extracted.json
 python skills/notemaker/scripts/build_note.py edited-note.html --extract recovered.json
 ```
 
-Recover the latest embedded model instead of rebuilding an old JSON and overwriting user edits. Local raster images referenced by `asset:relative/path` are embedded at build time. Numerical figures must come from actual plotting/data rather than generative redraws.
+Supports PPTX, PDF, HTML, Markdown and text. PDF extraction needs pypdf or another reader; PPTX text extraction does not prove images/layout/image equations were inspected. Legacy `.ppt` needs real conversion. Recover the latest saved HTML rather than overwriting user edits from stale JSON.
 
-## Development and checks
+The public example is fictional interface material. External-source cases and private notes are not redistributed in this repository. Real tests should record source, extraction scope and observed results; a fictional demo does not prove a paper/deck was read.
+
+## Verification
 
 ```sh
 npm ci
 npx playwright install chromium
+python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
+python -m unittest discover -s tests -p test_server.py
 npm test
 ```
 
-Tests cover real HTML downloads and reopening, images/code/settings, edit/cancel, search, section summaries, mobile navigation, and simulated file handles for success/cancellation/write or close failure/repeated saves. Simulated handles are not evidence that a real OS picker or macOS/Safari was tested. Source HTML passes a runtime allowlist; scripts, event handlers, unsafe URLs, and remote images are removed.
+Tests use actual temporary HTML files and local services: same-path writes/reopen/backups, cell operations, conflicts, failed writes, access boundaries, image/appearance retention, explicit exports and mobile layout. Atomic-replace failure has an independent test. External/private cases run only where their files exist; CI explicitly skips them rather than claiming they ran remotely.
 
-Structure: `skills/notemaker/SKILL.md` for the workflow, `references/` for content and saving contracts, `scripts/build_note.py` for build/extraction, `assets/` for the offline editor, `examples/` for fictional notes, and `tests/` for behavioral checks.
-
-API references: [showSaveFilePicker](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), [createWritable](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle/createWritable), [download](https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement/download).
+Entry points: `SKILL.md`, `scripts/build_note.py`, `scripts/serve_note.py`, `scripts/read_material.py`, `assets/notebook.js`, `assets/app.js`. See [the local-saving contract](skills/notemaker/references/local-saving.md).

@@ -18,29 +18,40 @@ def image_url(path):
     return 'data:'+mime+';base64,'+base64.b64encode(data).decode('ascii')
 
 def validate(model):
-    if model.get('version')!=1:raise ValueError('Expected model version 1')
+    if not isinstance(model,dict):raise ValueError('Note model must be an object')
+    if model.get('version') not in (1,2):raise ValueError('Expected model version 1 or 2')
     for key in ['title','intro','summary']:
-        if not isinstance(model.get(key),str) or not model[key].strip():raise ValueError('Required nonempty text: '+key)
+        if not isinstance(model.get(key),str) or (key=='title' and not model[key].strip()):raise ValueError('Required text: '+key)
     sections=model.get('sections');topics=model.get('topics')
-    if not isinstance(sections,list) or not sections or not isinstance(topics,list) or not topics:raise ValueError('Sections and topics must be nonempty lists')
+    if not isinstance(sections,list) or not sections or not isinstance(topics,list):raise ValueError('Sections must be nonempty; topics must be a list')
     ids=set()
     for item in sections+topics:
         if not isinstance(item,dict) or not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]*',str(item.get('id',''))):raise ValueError('Invalid section/topic id')
         if item['id'] in ids or item['id']=='home':raise ValueError('Duplicate or reserved id')
         ids.add(item['id'])
         for key in ['title','intro']:
-            if not isinstance(item.get(key),str) or not item[key].strip():raise ValueError('Missing '+key+' in '+item['id'])
+            if not isinstance(item.get(key),str) or (key=='title' and not item[key].strip()):raise ValueError('Missing '+key+' in '+item['id'])
     section_ids={s['id'] for s in sections}
     for s in sections:
-        if not isinstance(s.get('summary'),str) or not s['summary'].strip():raise ValueError('Section summary required')
+        if not isinstance(s.get('summary'),str):raise ValueError('Section summary required')
     source_ids=set()
     for source in model.get('sources',[]):
         if not source.get('id') or source['id'] in source_ids or not isinstance(source.get('label'),str):raise ValueError('Invalid/duplicate source')
         source_ids.add(source['id'])
     for topic in topics:
-        if topic.get('section') not in section_ids or not isinstance(topic.get('body'),str) or not topic['body'].strip():raise ValueError('Invalid topic section/body')
+        if topic.get('section') not in section_ids or not (isinstance(topic.get('body'),str) or isinstance(topic.get('cells'),list)):raise ValueError('Invalid topic section/body/cells')
         if not isinstance(topic.get('sources',[]),list) or any(s not in source_ids for s in topic.get('sources',[])):raise ValueError('Unknown topic source')
+    for item in [model]+sections+topics:
+        for key in ['cells','introCells','summaryCells']:
+            if key not in item:continue
+            if not isinstance(item[key],list):raise ValueError('Cells must be a list')
+            cell_ids=set()
+            for cell in item[key]:
+                if not isinstance(cell,dict) or cell.get('type') not in ('html','code') or not isinstance(cell.get('source'),str):raise ValueError('Invalid cell')
+                if not re.fullmatch(r'[A-Za-z0-9_-]+',str(cell.get('id',''))) or cell['id'] in cell_ids:raise ValueError('Invalid/duplicate cell id')
+                cell_ids.add(cell['id'])
     settings=model.setdefault('settings',{})
+    if not isinstance(settings,dict):raise ValueError('Settings must be an object')
     if settings.get('theme','light') not in ['light','dark']:raise ValueError('Unknown theme')
     if settings.get('accent','olive') not in ['olive','blue','plum','terracotta']:raise ValueError('Unknown accent')
     if not .85<=float(settings.get('fontScale',1))<=1.35:raise ValueError('fontScale outside supported range')
@@ -60,11 +71,15 @@ def build(model,base):
     for topic in model['topics']:
         def embed(match):
             return match[1]+image_url((base/html.unescape(match[2])).resolve())+match[3]
-        topic['body']=re.sub(r'(src\s*=\s*[\"\x27])asset:([^\"\x27]+)([\"\x27])',embed,topic['body'])
+        if 'body' in topic:topic['body']=re.sub(r'(src\s*=\s*[\"\x27])asset:([^\"\x27]+)([\"\x27])',embed,topic['body'])
+    for item in [model]+model['sections']+model['topics']:
+        for key in ['cells','introCells','summaryCells']:
+            for cell in item.get(key,[]):
+                if cell['type']=='html':cell['source']=re.sub(r'(src\s*=\s*[\"\x27])asset:([^\"\x27]+)([\"\x27])',embed,cell['source'])
     template=(SKILL/'assets/template.html').read_text(encoding='utf-8')
     data=json.dumps(model,ensure_ascii=False).replace('<','\\u003c')
-    values={'TITLE':html.escape(model['title']),'CSS':(SKILL/'assets/styles.css').read_text(encoding='utf-8'),'DATA':data,'JS':(SKILL/'assets/app.js').read_text(encoding='utf-8'),'WIDGETS':(SKILL/'assets/widgets.js').read_text(encoding='utf-8')}
-    return re.sub(r'\{\{(TITLE|CSS|DATA|JS|WIDGETS)\}\}',lambda m:values[m[1]],template)
+    values={'TITLE':html.escape(model['title']),'CSS':(SKILL/'assets/styles.css').read_text(encoding='utf-8'),'DATA':data,'JS':(SKILL/'assets/app.js').read_text(encoding='utf-8'),'WIDGETS':(SKILL/'assets/widgets.js').read_text(encoding='utf-8'),'NOTEBOOK':(SKILL/'assets/notebook.js').read_text(encoding='utf-8')}
+    return re.sub(r'\{\{(TITLE|CSS|DATA|JS|WIDGETS|NOTEBOOK)\}\}',lambda m:values[m[1]],template)
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)

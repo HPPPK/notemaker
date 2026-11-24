@@ -1,27 +1,27 @@
-# Local persistence contract
+# Save the current source without a location picker
 
-## Native picker
+Edit unlocks notebook cells; Save writes the currently bound HTML. Export is a separately labelled copy operation. A file:// document cannot silently overwrite its own path in every browser, so provide a paired launcher and local runtime rather than promising unsupported HTML permissions.
 
-Feature-detect `window.showSaveFilePicker` and `window.isSecureContext`; do not guess from OS or user-agent. The API has limited browser availability. HTTPS/localhost or trustworthy local contexts may expose it, but support must be checked at runtime. Request a target only from a click/keyboard user gesture. The page cannot silently know or overwrite its own file path.
+```sh
+python scripts/serve_note.py note.html --create-launchers
+python scripts/serve_note.py note.html
+```
 
-First Save / Save As opens the picker. Later Save in the same tab may reuse that handle. Reloading does not persist it. `createWritable()` obtains the stream, `write()` transfers the complete HTML, and `close()` commits. Only then mark clean. On failure/cancel: preserve the draft and dirty flag; display the reason without exposing private paths; do not silently fall back to a different target.
+The first command creates Windows .cmd and macOS/Linux .command launchers beside the note, with sibling _notemaker_runtime/ containing the Python runtime and assets. The second starts directly. Python 3.10+ is required; Node, cloud accounts, and API keys are not. Move the HTML, launcher, and runtime folder together to preserve their relative binding.
 
-## Download fallback
+## In-place protocol
 
-Create an HTML Blob, an object URL, and an explicit anchor download with a useful `.html` filename. Revoke the object URL after enough time for the browser to begin handling it. This exports an actual file, but the page cannot know if the user cancelled the download, where it landed, or whether an existing file was overwritten. Say “HTML download requested; reopen the downloaded file to verify.” Keep the current tab dirty until a verified native save or user cancellation of edits. Never show a fake “saved” toast.
+- Bind only 127.0.0.1 and exactly one resolved source HTML. Use a random capability path per process; no directory browsing or arbitrary-path write endpoint.
+- Inject a session descriptor into the served response, never the file on disk: bound filename, endpoint, token, SHA-256 of the exact bytes served. Saved/exported HTML must not retain session secrets.
+- Require correct Host, same Origin, session token, JSON content type, a bounded request size, and a valid model. Regenerate HTML using trusted assets, not a client-supplied executable wrapper. Saving requires embedded images; do not read arbitrary client-supplied asset paths.
+- Compare the supplied revision with current source bytes. Conflicting tabs/external edits retain their drafts instead of overwriting newer work.
+- Back up the original to .notemaker-backups/NOTE_STEM/. Write and fsync a temporary file in the same directory, preserve permissions, recheck the original, atomically replace, and verify persisted bytes. Remove failed temporary files.
+- Only a successful response clears dirty state. Freeze editing while saving. Network/model/I/O failures and conflicts preserve the draft. Backups support recovery; they do not resolve an active conflict.
 
-Users of browsers without a picker (including many Safari/Firefox configurations) can save a new HTML and, using the browser/filesystem, replace an old file themselves. If **all browsers must directly overwrite the same path**, a user-authorized local application/server is required; a standalone HTML alone cannot guarantee that. Do not add a local daemon without discussing that change in scope.
+## Standalone reading / explicit export
 
-## Serialization
+HTML stays self-contained for offline reading and cell editing. In file:// mode Save explains that its launcher is needed; it does not open a picker or silently download. Export explicitly serializes cells, settings, sources, code and embedded images, strips session/editor DOM, and requests an HTML download. Report the request honestly and retain the current unsaved warning because completion cannot be reliably observed.
 
-The exported HTML embeds a `script type="application/json" id="notemaker-data"` model, CSS, runtime, images and optional reviewed widgets. Escape `<` in embedded JSON so `</script>` in notes/code cannot terminate the data element. Do not serialize a stale template or editable DOM alone. Remove transient content/navigation/dialogs from the document clone; on reopen the canonical model renders afresh, retaining all sections/topics and the ability to edit/save again. Cancel restores the pre-edit model and appearance.
+## Validation
 
-## Required checks
-
-Native success, rejection before file choice, permission denial, failure during write/close, repeated saves, Save As, saving while editing, and download fallback. Test a real download, inspect bytes on disk, reopen it, verify modified text/images/code/settings plus offline behavior. Mocked file handles are appropriate for error-path tests but do not prove a real OS picker was tested. Closing with unsaved changes must trigger a warning when the browser allows one.
-
-References verified during implementation:
-
-- [MDN: showSaveFilePicker](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker)
-- [MDN: createWritable](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle/createWritable) — changes are reflected after close.
-- [MDN: download](https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement/download) — proposed filename is not download-completion evidence.
+Test actual temporary files and actual local HTTP requests: same path changes, backup equals original, refreshed/reopened edits persist, repeated saves succeed, conflicts do not overwrite, wrong origin/token/Host is rejected, and simulated atomic replace failure leaves the original intact. Include real exported-file checks. Mock browser file handles do not validate this workflow. Record platforms actually tested; portable launchers are not evidence of macOS testing.

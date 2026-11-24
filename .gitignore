@@ -9,3 +9,6 @@ __pycache__/
 private-preview/
 artifacts/
 tools_prepare_examples.py
+.notemaker-backups/
+_notemaker_runtime/
+*.tmp

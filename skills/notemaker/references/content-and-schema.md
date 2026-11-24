@@ -18,7 +18,7 @@ This structure is independent of the subject. Use module names for a course, age
 
 Use figures for a mechanism, numerical comparison, timeline, or relation that benefits from one. Label axes/units/legends; explain what readers should compare. Avoid arbitrary diagrams attached to every paragraph.
 
-## JSON model v1
+## JSON models v1/v2
 
 ```json
 {
@@ -34,7 +34,11 @@ Use figures for a mechanism, numerical comparison, timeline, or relation that be
 }
 ```
 
-IDs must be unique and URL-safe. Introductions/summaries must be nonempty. A body uses semantic HTML: h2–h4, p, lists, tables, blockquote, pre/code, figure/img/figcaption, details/summary, safe links. No scripts, event attributes, forms, iframes, remote images, or arbitrary inline CSS. Do not accept HTML from retrieved sources without reviewing and sanitizing it.
+IDs must be unique and URL-safe. Generated introductions/summaries must contain substantive content. A body uses semantic HTML: h2–h4, p, lists, tables, blockquote, pre/code, figure/img/figcaption, details/summary, safe links. No scripts, event attributes, forms, iframes, remote images, or arbitrary inline CSS. Do not accept HTML from retrieved sources without reviewing and sanitizing it.
+
+Version 2 adds editable cells. A topic may use `cells` instead of `body`; a section or the whole note may provide `introCells` and `summaryCells`. Each cell has a unique `id`, `type` (`html` or `code`), and string `source`. HTML cells are sanitized and visually editable; code cells use text editors and never execute. If cells are absent, the runtime converts legacy body HTML or intro/summary paragraphs into cells. Save retains cell order/content; intro/summary strings remain as searchable indexes. A user may intentionally clear every cell; generation quality requirements do not prohibit saving an empty draft.
+
+For complex sections, use several substantive paragraphs rather than a slogan. Intros explain the problem and route through the material; summaries integrate results/decisions, compare distinctions, and retain limitations. Shorter is appropriate only when the material itself is narrow. Character counts can detect placeholder-like output in regression tests, but are not evidence of quality: review the substance.
 
 For embedded figures use `<img src="asset:figures/example.png" alt="What the chart shows">`; the builder resolves paths relative to the model JSON, embeds the bytes, and verifies the image signature matches an allowed raster MIME type. Or supply an already embedded raster data URL. Add a figcaption explaining source and interpretation. New local images selected by users are embedded in the saved file.
 

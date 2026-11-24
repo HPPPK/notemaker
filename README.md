@@ -2,76 +2,78 @@
 
 **[中文](README.md) · [English](README.en.md)**
 
-把材料变成先讲全貌、再讲细节的可视化笔记。离线打开，直接编辑，手动保存成真正的本地 HTML。
+从真实材料制作有内容的可视化笔记；点击 **Edit** 进入单元格模式，点击 **Save** 直接写回当前 HTML。
 
-Notemaker 是一个可安装的 AI skill，附带无需前端框架的笔记生成器。输入可以是文档、PPT、课程材料、会议记录、论文、用户笔记、搜索结果，或模型自己的总结。它不预设某个学科，也不要求所有内容都按“第几天”组织。
+适用于文档、PPTX、课程、会议纪要、论文、搜索结果和模型整理稿。板块名称与内容结构由材料决定，不固定套用课程天数。每个板块遵循 **介绍 → 内容小节 → 最后一个总结小节**。
 
-![Notemaker 通用示例预览](docs/demo-preview.png)
+![Notemaker 预览](docs/demo-preview.png)
 
-## 它生成什么
+## 内容不只是一句导语
 
-- **整份笔记先有介绍和内容地图，最后再做整体总结**，不直接从细碎小节开始。
-- **每个板块遵循「介绍 → 内容小节 → 最后一个总结小节」**。介绍讲背景、范围与问题，总结在展开内容之后梳理联系、结论和待确认事项。
-- 板块可以是课程模块、会议议题、文献主题或项目部分；名称和总结方式随材料调整，Day 01/Day 02 只是一种例子。
-- 按大章节/小节浏览，全文搜索、图片放大、代码、表格、打印和窄屏目录。
-- 区分材料事实、模型整理和待确认内容，保留可用来源与页码/幻灯片/时间位置。
-- Edit 后可改标题、简介、总结、正文、代码和图注，新增章节/小节、插入本地图片，调整主题、强调色和字号。
-- 单个 HTML 内嵌内容、图片、CSS 和 JavaScript，阅读和编辑无需服务器、账号、CDN 或联网。
+介绍应说明背景、具体问题、关键概念之间的关系和阅读路线；总结应联系前面的内容，比较方法或状态，说明证据、局限和后续可核对的问题。复杂板块需要多段展开、适当的表格或图解，不能用一句口号代替。长度根据材料复杂度调整，不靠统一字数或重复套话凑篇幅。
 
-## Save 真的保存在哪里？
+会议笔记区分讨论、建议、已确认事项和行动；论文区分作者主张、证据、局限与整理者推断；课程用例子解释概念。来源中的页码、幻灯片、段落或时间位置应保留，没有的负责人、期限或实验数值不编造。
 
-**不会把 localStorage 或“已保存”提示当作落盘。**
+## 像 Notebook 一样自由编辑
 
-| 浏览器能力 | 点击 Save 的结果 |
-| --- | --- |
-| 支持文件保存 API 且允许使用 | 第一次选择本地目标文件；写入并关闭文件流成功后才显示成功。同一页面会话可继续保存到同一文件。重开页面后需重新选择。 |
-| 不支持该 API | 下载一份包含全部修改的新 HTML。页面会明确提示“已请求下载，请重新打开核对”，不会声称覆盖了原文件。 |
-| 用户取消、拒绝权限或写入失败 | 修改留在当前页面，保持未保存状态；可重试或下载 HTML 副本。 |
+- 阅读模式不显示单元格编辑控件；点击 Edit 后才解锁。
+- 介绍、正文、总结都支持单元格上方/下方插入、修改、复制、上下移动、删除；清空后可重新增加。
+- 文字与图表格可视编辑，也可打开 HTML 源码；代码格使用文本编辑器，**不执行代码**。
+- 支持增加、删除、排序板块与小节，插入本地图片，调整标题、主题、强调色与字号。
+- Cancel 恢复本轮编辑前的状态；没有自动保存。
 
-这是独立 HTML 的浏览器边界：它不能在所有浏览器中不经授权直接覆盖自身文件。Safari/Firefox 等不支持直接选文件的配置仍可导出完整 HTML，用户可在文件系统中替换旧文件。没有自动保存；Cancel 会放弃本轮编辑。下载是否完成不能被页面可靠获知，所以导出后当前页仍保留未保存提醒。
+## Save 不再让你选保存位置
 
-## 安装 skill
+用配套“打开编辑”启动器打开笔记后，当前源 HTML 已绑定。Save 自动备份修改前版本，然后原子写回这个文件，验证写入后才显示成功。不调用文件选择器，不把另存或浏览器缓存假称为保存。
 
-将本仓库的 `skills/notemaker/` 目录复制到 `~/.codex/skills/notemaker/`。如果当前 AI 有 GitHub skill 安装工具，也可提供仓库地址和这个子目录。
+要实现这一点，需要一个 **Python 标准库本地服务**。它只绑定 `127.0.0.1` 和当前文件，采用会话校验及文件版本检查；两个窗口冲突或写入失败时保留草稿，避免静默覆盖。备份位于 `.notemaker-backups/`。
 
-调用示例：
+直接双击 HTML 仍可离线阅读、编辑；但独立浏览器页面不能无授权覆盖自身路径，所以这种模式的 Save 会提示使用启动器。**导出副本** 是另一个明确操作，生成包含全部内容的新 HTML，不冒充原位保存。
 
-> 用 $notemaker 把这份 PPT 和我的课堂笔记整理为可视化 HTML。每个模块先做介绍，再展开例子，最后一个小节总结；保留来源，允许我编辑后保存到本地。
+## 安装与使用
 
-> 用 $notemaker 整理这份会议记录。区分讨论、决定、行动与待确认事项，没有负责人或期限不要编。
+把 `skills/notemaker/` 复制到 `~/.codex/skills/notemaker/`，或从本仓库 Release 下载 skill 压缩包。
 
-> 用 $notemaker 综合这些文献和你检索到的资料，按问题、方法、证据和局限组织；把模型推断标出来。
+> 用 $notemaker 读取这份课件、会议记录或论文。每个板块先充分介绍，再展开内容，最后归纳总结。保留依据，提供可自由增删的单元格和一键原位保存。
 
-## 生成器与示例
-
-生成器只需要 Python 3.10+ 标准库；不需要 Node。浏览器可以直接打开生成文件。
+生成与配套启动器：
 
 ```sh
-python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
+python skills/notemaker/scripts/build_note.py note.json --output note.html
+python skills/notemaker/scripts/serve_note.py note.html --create-launchers
 ```
 
-打开 `examples/general-note.html` 即可体验。该示例的课程、会议、文献内容均为虚构说明，不引用用户私人笔记。
-
-模型应先读取真实材料，再按 [内容结构](skills/notemaker/references/content-and-schema.md) 写出笔记模型；生成器负责封装，不会自行读取 PPT、联网搜索或调用模型。那些工作由使用 skill 的 AI 完成。
-
-用户在浏览器保存过之后，再交给 AI 更新时，应提取已保存 HTML 中的最新内容：
+之后双击生成的 `.cmd`（Windows）或 `.command`（macOS/Linux），或直接运行：
 
 ```sh
+python skills/notemaker/scripts/serve_note.py note.html
+```
+
+保留启动终端；停止服务用 Ctrl+C。需要 Python 3.10+；阅读版不需要安装环境。启动器、HTML 和 `_notemaker_runtime/` 一起移动可继续使用。macOS 启动器已提供，但不宣称在没有实测的系统上通过验证。
+
+## 材料读取与后续修改
+
+skill 指导 AI 读取材料、核对来源、组织与解释内容；生成器负责封装，不会自行调用 AI API。可用提取器保留实际源文件位置：
+
+```sh
+python skills/notemaker/scripts/read_material.py lecture.pptx --output extracted.json
 python skills/notemaker/scripts/build_note.py edited-note.html --extract recovered.json
 ```
 
-不要直接从旧 JSON 重建而丢掉用户修改。所有输出本地路径由使用者决定；构建时 `asset:相对路径` 图片会被内嵌。数值图应基于数据绘制，不用生成式图片伪造。
+支持 PPTX、PDF、HTML、Markdown 和文本。PDF 提取需要可用的 pypdf；PPTX 文本提取不等于检查了图片、布局和图片中的公式。旧 `.ppt` 必须用合适工具转换，不是修改扩展名。用户保存过后，AI 必须从最新 HTML 提取内容，不能用旧 JSON 覆盖修改。
 
-## 开发和验证
+公开的 `examples/general-note.json` 是虚构的通用界面示例。实际外部材料案例与私人笔记不随代码仓库转载；实际测试需记录来源、提取范围、问题和结果，不能把虚构示例当成读过课件或论文的证据。
+
+## 开发验证
 
 ```sh
 npm ci
 npx playwright install chromium
+python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
+python -m unittest discover -s tests -p test_server.py
 npm test
 ```
 
-测试覆盖真实 HTML 下载、重开验证、图片/代码/设置保留、编辑取消、搜索、章节简介、窄屏，以及模拟文件句柄的成功/取消/写入失败/关闭失败/重复保存。模拟测试不等于真实系统文件选择器或 macOS/Safari 已实测。运行时不加载未审核的源 HTML 脚本、事件属性或远程图片。
+测试使用真正的临时 HTML 和本地服务，核对同路径写入、重开、备份、单元格操作、冲突、失败保护、权限边界、图片与外观保留、显式导出和窄屏。原子替换失败有独立测试。外部案例/私人笔记检查仅在本地具备相应文件时执行；CI 会明确标记跳过，不能说这些私人输入也在 GitHub 上验证了。
 
-核心结构：`skills/notemaker/SKILL.md`（工作流）、`references/`（内容/保存约定）、`scripts/build_note.py`（构建/提取）、`assets/`（离线界面和编辑保存运行时）、`examples/`（虚构示例）、`tests/`（行为测试）。
-
-文件保存 API 依据：[showSaveFilePicker](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker)、[createWritable](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle/createWritable)、[download](https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement/download)。
+源码入口：`SKILL.md`、`scripts/build_note.py`、`scripts/serve_note.py`、`scripts/read_material.py`、`assets/notebook.js`、`assets/app.js`。详细保存约定见 [local-saving.md](skills/notemaker/references/local-saving.md)。

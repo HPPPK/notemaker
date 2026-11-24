@@ -1,6 +1,6 @@
 interface:
   display_name: "Notemaker"
-  short_description: "Visual HTML notes with editing and real local saving"
-  default_prompt: "Use $notemaker to turn my materials into visual offline notes with introductions, summaries, sources, and editable local-file saving."
+  short_description: "Visual notes, editable cells, and in-place HTML saves"
+  default_prompt: "Use $notemaker to make substantial visual notes from my materials, with notebook-style cells and Save writing to the same source through a local launcher."
 policy:
   allow_implicit_invocation: true

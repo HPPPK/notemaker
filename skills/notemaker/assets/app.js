@@ -4,7 +4,9 @@
   const clone=value=>JSON.parse(JSON.stringify(value));
   const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
   let model=JSON.parse($('notemaker-data').textContent), snapshot=clone(model);
-  let active='home', editing=false, dirty=false, saving=false, fileHandle=null;
+  let active='home', editing=false, dirty=false, saving=false;
+  const sessionNode=$('notemaker-session');
+  let session=sessionNode?JSON.parse(sessionNode.textContent):null;
   const accents={olive:['#526146','#b8ce9d'],blue:['#365f8d','#9bc5f5'],plum:['#77547e','#d4afe0'],terracotta:['#94543d','#efb49b']};
   const tags=new Set('p div span br hr h2 h3 h4 h5 strong b em i u s del ul ol li table thead tbody tfoot tr th td caption pre code figure figcaption img a blockquote aside details summary button label input select option output svg g line polyline rect circle text'.split(' '));
   const removeWithContent=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','FORM','TEMPLATE','LINK','META','BASE','NOSCRIPT']);
@@ -37,7 +39,9 @@
     clean(template.content);return template.innerHTML;
   }
   // Re-sanitize on every render and export; JSON remains the canonical content.
-  model.topics.forEach(t=>{t.body=safeBody(t.body);});snapshot=clone(model);
+  const cells=window.NotemakerCells;
+  cells.configure({sanitize:safeBody,escape:esc,onDirty:markDirty,afterRender:root=>window.NotemakerWidgets?.init(root)});
+  cells.upgrade(model);snapshot=clone(model);cells.bind($('content'));
   function status(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
   function markDirty(){if(editing){dirty=true;$('dirty-indicator').hidden=false;}}
   function appearance(){
@@ -62,33 +66,31 @@
     model.title=$('document-title').value.trim()||model.title;model.subtitle=$('document-subtitle').value;
     model.settings={theme:$('theme').value,accent:$('accent').value,fontScale:Number($('font-scale').value)};
     const item=current();if(item!==model&&!isSummary())item.title=$('page-title').value.trim()||item.title;
-    if(!isSummary())item.intro=$('page-intro').value.trim()||item.intro;
-    if(isSummary())item.summary=$('page-summary').value.trim()||item.summary;
     if(isTopic()&&$('editable-body')){
-      for(const code of $('editable-body').querySelectorAll('code[data-source]')){
+      for(const code of $('editable-body').querySelectorAll('.cell-content code[data-source]')){
         const copy=code.cloneNode(true);copy.querySelectorAll('.line-no').forEach(x=>x.remove());
         const lines=copy.querySelectorAll('.code-line');code.dataset.source=lines.length?[...lines].map(x=>x.textContent).join('\n'):copy.textContent;
       }
-      item.body=safeBody($('editable-body').innerHTML);
     }
+    cells.collect();
   }
   function fields(){
     $('editor-panel').hidden=!editing;$('edit').hidden=editing;
-    for(const id of ['cancel','save','save-as','export'])$(id).hidden=!editing;
+    for(const id of ['cancel','save','export'])$(id).hidden=!editing;
     $('dirty-indicator').hidden=!dirty;
     if(!editing)return;
     $('document-title').value=model.title;$('document-subtitle').value=model.subtitle||'';
     $('theme').value=model.settings?.theme||'light';$('accent').value=model.settings?.accent||'olive';
     const scale=String(model.settings?.fontScale||1);if(![...$('font-scale').options].some(option=>option.value===scale))$('font-scale').add(new Option(scale+'×',scale));$('font-scale').value=scale;
     const item=current();$('page-title').value=item.title;$('page-title-label').hidden=active==='home'||isSummary();
-    $('page-intro').value=item.intro||'';$('page-summary').value=item.summary||'';
-    $('page-intro-label').hidden=isSummary();$('summary-label').hidden=!isSummary();$('delete-topic').hidden=!isTopic();$('image-label').hidden=!isTopic();
+    $('delete-topic').hidden=!isTopic();$('image-label').hidden=false;
+    for(const id of ['delete-section','move-page-up','move-page-down'])$(id).hidden=item===model;
   }
   function nav(){
     const q=$('search').value.trim().toLocaleLowerCase();
     let html=`<a href="#home" ${active==='home'?'aria-current="page"':''}>主题总览 · Introduction</a>`;
     for(const section of model.sections){
-      const topics=model.topics.filter(t=>t.section===section.id&&(!q||(t.title+' '+t.intro+' '+t.body.replace(/<[^>]+>/g,' ')).toLocaleLowerCase().includes(q)));
+      const topics=model.topics.filter(t=>t.section===section.id&&(!q||(t.title+' '+t.intro+' '+cells.searchText(t)).toLocaleLowerCase().includes(q)));
       if(q&&!topics.length&&!(section.title+' '+section.intro+' '+section.summary).toLocaleLowerCase().includes(q))continue;
       const summaryId='summary:'+section.id;
       html+=`<div class="nav-section"><a href="#${esc(section.id)}">${esc(section.title)}</a><div class="nav-children"><a class="nav-intro" href="#${esc(section.id)}" ${active===section.id?'aria-current="page"':''}>介绍 · Introduction</a>${topics.map(t=>`<a class="nav-topic" href="#${esc(t.id)}" ${active===t.id?'aria-current="page"':''}>${esc(t.title)}</a>`).join('')}<a class="nav-summary" href="#${esc(summaryId)}" ${active===summaryId?'aria-current="page"':''}>总结 · Summary</a></div></div>`;
@@ -106,20 +108,20 @@
     appearance();nav();fields();const item=current();
     if(active==='home'){
       $('breadcrumb').textContent='主题总览 / Introduction';
-      $('content').innerHTML=`<p class="eyebrow">THE BIG PICTURE / 笔记介绍</p><h1>${esc(model.title)}</h1><p class="subtitle">${esc(model.subtitle||'')}</p><p class="lead">${esc(model.intro)}</p><div class="count-line"><span>${model.sections.length} 个大章节</span><span>${model.topics.length} 个专题</span><span>介绍 → 内容小节 → 板块总结</span></div><h2>内容地图</h2><p>每个板块先介绍背景和范围，再展开小节，最后用专门的小节总结。</p><div class="content-map">${model.sections.map(row).join('')}${row({id:'summary:home',title:'整份笔记总结',intro:'读完各板块后，回看整份笔记的联系、结论与待确认问题。'},model.sections.length)}</div>${sourceList()}${pageNavigation()}`;
+      $('content').innerHTML=`<p class="eyebrow">THE BIG PICTURE / 笔记介绍</p><h1>${esc(model.title)}</h1><p class="subtitle">${esc(model.subtitle||'')}</p><div class="note-body notebook-intro">${cells.mount(model,'intro',editing)}</div><div class="count-line"><span>${model.sections.length} 个大章节</span><span>${model.topics.length} 个内容小节</span><span>介绍 → 内容小节 → 板块总结</span></div><h2>内容地图</h2><div class="content-map">${model.sections.map(row).join('')}${row({id:'summary:home',title:'整份笔记总结',intro:'读完各板块后，回看整份笔记的联系、结论与待确认问题。'},model.sections.length)}</div>${sourceList()}${pageNavigation()}`;
     }else if(isSummary()){
       const whole=item===model;const title=whole?'整份笔记总结':item.title+' · 总结';
       $('breadcrumb').textContent=title;
-      $('content').innerHTML=`<p class="eyebrow">${whole?'NOTE SUMMARY / 整份笔记总结':'SECTION SUMMARY / 板块最后一节'}</p><h1>${esc(title)}</h1><section class="overview-summary"><h2>${whole?'整份笔记的联系与结论':'这一板块的总结'}</h2><p>${esc(item.summary)}</p></section>${pageNavigation()}`;
+      $('content').innerHTML=`<p class="eyebrow">${whole?'NOTE SUMMARY / 整份笔记总结':'SECTION SUMMARY / 板块最后一节'}</p><h1>${esc(title)}</h1><section class="overview-summary note-body">${cells.mount(item,'summary',editing)}</section>${pageNavigation()}`;
     }else if(isTopic()){
       const section=model.sections.find(s=>s.id===item.section);$('breadcrumb').textContent=section.title+' / '+item.title;
-      $('content').innerHTML=`<p class="eyebrow">${esc(section.title)}</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><div id="editable-body" class="note-body" ${editing?'contenteditable="true" spellcheck="false"':''}>${safeBody(item.body)}</div>${sourceList(item.sources||[])}${pageNavigation()}`;
+      $('content').innerHTML=`<p class="eyebrow">${esc(section.title)}</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><div id="editable-body" class="note-body" contenteditable="false">${cells.mount(item,'body',editing)}</div>${sourceList(item.sources||[])}${pageNavigation()}`;
       window.NotemakerWidgets?.init($('content'));
       if(editing)$('editable-body').addEventListener('input',markDirty);
     }else{
       $('breadcrumb').textContent=item.title+' / 大主题概览';
       const topics=model.topics.filter(t=>t.section===item.id);
-      $('content').innerHTML=`<p class="eyebrow">SECTION OVERVIEW / 板块介绍</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><h2>这一板块如何展开</h2><div class="content-map">${topics.map(row).join('')}${row({id:'summary:'+item.id,title:'总结',intro:'在内容小节之后，梳理这一板块的联系、结论与待确认事项。'},topics.length)}</div>${pageNavigation()}`;
+      $('content').innerHTML=`<p class="eyebrow">SECTION OVERVIEW / 板块介绍</p><h1>${esc(item.title)}</h1><div class="note-body notebook-intro">${cells.mount(item,'intro',editing)}</div><h2>这一板块如何展开</h2><div class="content-map">${topics.map(row).join('')}${row({id:'summary:'+item.id,title:'总结',intro:'在内容小节之后，梳理这一板块的联系、结论与待确认事项。'},topics.length)}</div>${pageNavigation()}`;
     }
   }
   function route(){
@@ -132,6 +134,7 @@
   function filename(){return model.title.replace(/[<>:"/\\|?*\x00-\x1f]/g,'-').slice(0,90)+'.html';}
   function serialized(candidate){
     const copy=document.documentElement.cloneNode(true);
+    copy.querySelector('#notemaker-session')?.remove();
     copy.querySelector('#notemaker-data').textContent=JSON.stringify(candidate).replaceAll('<','\\u003c');
     for(const id of ['content','navigation'])copy.querySelector('#'+id).replaceChildren();
     copy.querySelector('#editor-panel').hidden=true;copy.querySelector('#image-dialog').removeAttribute('open');copy.querySelector('#large-image').removeAttribute('src');
@@ -142,21 +145,21 @@
   }
   function freeze(value){
     saving=value;for(const el of document.querySelectorAll('button,input,select,textarea'))el.disabled=value;
-    if($('editable-body'))$('editable-body').setAttribute('contenteditable',String(!value&&editing));
+    if($('editable-body'))$('editable-body').setAttribute('contenteditable','false');
+    cells.freeze(value);
   }
-  function candidate(){collect();const result=clone(model);result.meta={...(result.meta||{}),exportedAt:new Date().toISOString(),generator:'notemaker/1.1'};return result;}
-  async function nativeSave(saveAs=false){
+  function candidate(){collect();const result=clone(model);result.meta={...(result.meta||{}),exportedAt:new Date().toISOString(),generator:'notemaker/2.0'};return result;}
+  async function nativeSave(){
     if(saving)return;
-    if(typeof window.showSaveFilePicker!=='function'||!window.isSecureContext){download();return;}
-    const value=candidate();const text=serialized(value);freeze(true);let stream;
+    if(!session){status('要直接保存回当前文件，请用配套“打开编辑”启动器打开这份笔记。当前修改仍在；也可明确导出副本。',true);return;}
+    const value=candidate();freeze(true);
     try{
-      const target=(!saveAs&&fileHandle)||await window.showSaveFilePicker({suggestedName:filename(),types:[{description:'Notemaker HTML',accept:{'text/html':['.html']}}]});
-      stream=await target.createWritable();await stream.write(text);await stream.close();stream=null;
-      fileHandle=target;model=value;snapshot=clone(model);dirty=false;editing=false;
-      status('已写入本地文件：'+target.name+'。写入已完成，可重新打开核对。');render();
+      const response=await fetch(session.endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Notemaker-Token':session.token},body:JSON.stringify({model:value,revision:session.revision})});
+      const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.error||'Save failed');
+      session.revision=result.revision;model=value;snapshot=clone(model);dirty=false;editing=false;
+      status('已保存到当前源文件：'+result.name+'。修改前的版本已自动备份。');render();
     }catch(error){
-      if(stream){try{await stream.abort();}catch{}}
-      status(error.name==='AbortError'?'保存已取消；修改仍在当前页面，尚未保存。':'没有保存成功：'+(error.message||error.name)+'。修改仍在；可重试或下载 HTML 副本。',true);
+      status('没有保存成功：'+(error.message||error.name)+'。修改仍在当前页面，尚未丢弃。',true);
     }finally{freeze(false);}
   }
   function download(){
@@ -166,10 +169,10 @@
     status('已请求下载完整 HTML；请重新打开下载的文件核对。当前页面无法确认下载完成，也没有覆盖原文件。');
     // A download cannot prove disk completion; preserve the current unsaved flag.
   }
-  $('edit').addEventListener('click',()=>{snapshot=clone(model);editing=true;dirty=false;render();status('编辑模式：修改正文或上方设置，完成后点击 Save；刷新前请保存。');});
+  $('edit').addEventListener('click',()=>{snapshot=clone(model);editing=true;dirty=false;render();status('单元格编辑模式：可自由增删、修改和排序。点击 Save 才保存到当前源文件。');});
   $('cancel').addEventListener('click',()=>{model=clone(snapshot);editing=false;dirty=false;render();status('已放弃本轮修改；本地文件未改动。');});
   $('apply').addEventListener('click',()=>{collect();render();status('预览已更新，尚未保存到文件。');});
-  $('save').addEventListener('click',()=>nativeSave(false));$('save-as').addEventListener('click',()=>nativeSave(true));$('export').addEventListener('click',download);
+  $('save').addEventListener('click',nativeSave);$('export').addEventListener('click',download);
   $('editor-panel').addEventListener('input',event=>{if(event.target.id!=='image-input')markDirty();});
   $('theme').addEventListener('change',()=>{collect();appearance();});$('accent').addEventListener('change',()=>{collect();appearance();});$('font-scale').addEventListener('change',()=>{collect();appearance();});
   $('add-section').addEventListener('click',()=>{
@@ -180,12 +183,12 @@
     const id='topic-'+Date.now().toString(36);model.topics.push({id,section,title:'新的小节',intro:'这一节要回答什么问题？',body:'<h2>先说清楚</h2><p>点击这里开始写下你的解释、记录或观察。</p>',sources:[]});markDirty();location.hash=id;
   });
   $('delete-topic').addEventListener('click',()=>{
-    if(!isTopic()||model.topics.length<=1){status('至少保留一个小节。',true);return;}
+    if(!isTopic())return;
     if(!confirm('删除当前小节？点击 Save 前仍可通过取消恢复。'))return;
     const section=current().section;model.topics=model.topics.filter(t=>t.id!==active);markDirty();active='home';render();location.hash=section;
   });
   $('image-input').addEventListener('change',async event=>{
-    const file=event.target.files?.[0],target=active;if(!file||!editing||!isTopic())return;
+    const file=event.target.files?.[0],target=active;if(!file||!editing)return;
     if(file.size>10*1024*1024){status('图片大于 10 MiB，请先压缩。',true);return;}
     const bytes=new Uint8Array(await file.arrayBuffer());
     const mime=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71?'image/png':bytes[0]===255&&bytes[1]===216&&bytes[2]===255?'image/jpeg':String.fromCharCode(...bytes.slice(0,6)).match(/^GIF8[79]a$/)?'image/gif':String.fromCharCode(...bytes.slice(0,4))==='RIFF'&&String.fromCharCode(...bytes.slice(8,12))==='WEBP'?'image/webp':null;
@@ -193,7 +196,7 @@
     if(!editing||saving||target!==active){status('页面已切换，请在目标小节重新选择图片。');return;}
     let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.slice(i,i+8192));
     const figure=document.createElement('figure'),img=document.createElement('img'),caption=document.createElement('figcaption');
-    img.src='data:'+mime+';base64,'+btoa(binary);img.alt=file.name;caption.textContent='图片：'+file.name+'（点击编辑图注与来源）';figure.append(img,caption);$('editable-body').append(figure);markDirty();event.target.value='';
+    img.src='data:'+mime+';base64,'+btoa(binary);img.alt=file.name;caption.textContent='图片：'+file.name+'（点击编辑图注与来源）';figure.append(img,caption);cells.appendHTML(figure.outerHTML);markDirty();event.target.value='';
   });
   $('content').addEventListener('paste',event=>{
     if(!editing||!event.target.closest('[contenteditable=true]'))return;
@@ -211,10 +214,26 @@
   $('search').addEventListener('input',nav);$('print').addEventListener('click',()=>{collect();window.print();});
   $('menu').addEventListener('click',()=>{const open=$('sidebar').classList.toggle('open');$('shade').hidden=!open;$('menu').setAttribute('aria-expanded',String(open));});
   $('shade').addEventListener('click',()=>{$('sidebar').classList.remove('open');$('shade').hidden=true;$('menu').setAttribute('aria-expanded','false');});
+  function movePage(direction){
+    collect();const target=current();if(target===model)return;
+    if(isTopic()){
+      const siblings=model.topics.filter(t=>t.section===target.section),index=siblings.indexOf(target),other=siblings[index+direction];if(!other)return;
+      const a=model.topics.indexOf(target),b=model.topics.indexOf(other);[model.topics[a],model.topics[b]]=[model.topics[b],model.topics[a]];
+    }else{const index=model.sections.indexOf(target),other=index+direction;if(other<0||other>=model.sections.length)return;[model.sections[index],model.sections[other]]=[model.sections[other],model.sections[index]];}
+    markDirty();render();
+  }
+  $('move-page-up').addEventListener('click',()=>movePage(-1));$('move-page-down').addEventListener('click',()=>movePage(1));
+  $('delete-section').addEventListener('click',()=>{
+    collect();const id=isTopic()?current().section:current().id;
+    if(!id||model.sections.length<=1){status('最后一个板块可清空单元格，或先增加另一个板块。',true);return;}
+    if(!confirm('删除这个板块及其小节？点击 Save 前可通过取消恢复。'))return;
+    model.sections=model.sections.filter(s=>s.id!==id);model.topics=model.topics.filter(t=>t.section!==id);markDirty();active='home';render();location.hash='home';
+  });
   document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();if(editing)nativeSave(event.shiftKey);}if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();$('search').focus();}});
   document.addEventListener('click',event=>{if(saving&&event.target.closest('a'))event.preventDefault();});
   window.addEventListener('beforeunload',event=>{if(dirty||saving){event.preventDefault();event.returnValue='';}});
   window.addEventListener('hashchange',route);
   window.Notemaker=Object.freeze({getModel:()=>{collect();return clone(model);},exportHTML:()=>serialized(candidate())});
   route();
+  status(session?'已绑定当前源文件：'+session.name+'。Edit 后修改，Save 原位保存。':'离线阅读版。需要原位保存时，请通过配套“打开编辑”启动器打开。');
 })();

@@ -16,5 +16,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html
+      - run: python -m unittest discover -s tests -p test_server.py
       - run: npx playwright install --with-deps chromium
       - run: npm test
