@@ -1,6 +1,10 @@
 # Content and schema
 
-The entry page is a synthesis of the **big topic**: why it matters, what the collection covers, main conclusions, limits, and a map. Section landing pages introduce and summarize each major topic before presenting its subtopics. Do not start on the first detail page.
+The entry page introduces the **big topic**: why it matters, what the collection covers, and a map. Each major section follows **introduction → content subsections → final summary subsection**. Do not merge a section's conclusions into its introduction or start on its first detail page. A note-wide synthesis also appears at the end, not above the content map.
+
+The renderer uses section `intro` on its opening page and section `summary` on a dedicated closing page, placed last in that section's navigation. Summaries are derived pages, not duplicated entries in `topics`. Their routes are `#summary:SECTION_ID`; the final note-wide summary is `#summary:home`. Only edit a summary on its own closing page. Adding a topic keeps it before that section's closing summary. Existing JSON models remain compatible.
+
+This structure is independent of the subject. Use module names for a course, agenda subjects for a meeting, themes/questions for papers, etc. Day labels belong only in material actually organized by days. Summaries should synthesize source-grounded results and unresolved issues relevant to that domain.
 
 ## Source-specific organization
 
@@ -10,7 +14,7 @@ The entry page is a synthesis of the **big topic**: why it matters, what the col
 | Meeting | purpose → agenda → discussion/decisions/actions | transcript timestamps, speakers where known, owner/date only if stated |
 | Papers | question → approach → evidence → limitations | title/DOI/link/page/figure, measured results vs author's claims |
 | Search findings | question → findings → comparison → gaps | direct source URLs, retrieval date if relevant, contradictions |
-| Model summary | scope → synthesis → supporting detail | explicitly mark model synthesis; no invented citations |
+| Model-authored material | introduction → supported detail → synthesis | explicitly mark model synthesis; no invented citations |
 
 Use figures for a mechanism, numerical comparison, timeline, or relation that benefits from one. Label axes/units/legends; explain what readers should compare. Avoid arbitrary diagrams attached to every paragraph.
 

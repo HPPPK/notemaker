@@ -47,15 +47,23 @@
     document.documentElement.style.setProperty('--size',Math.min(1.35,Math.max(.85,Number(settings.fontScale)||1)));
     document.title=model.title+' · Notemaker';
   }
-  function current(){return model.topics.find(x=>x.id===active)||model.sections.find(x=>x.id===active)||model;}
+  function summaryFor(id=active){return id==='summary:home'?model:model.sections.find(s=>id==='summary:'+s.id);}
+  function isSummary(){return !!summaryFor();}
+  function current(){return summaryFor()||model.topics.find(x=>x.id===active)||model.sections.find(x=>x.id===active)||model;}
   function isTopic(){return model.topics.some(x=>x.id===active);}
+  function readingOrder(){return ['home',...model.sections.flatMap(s=>[s.id,...model.topics.filter(t=>t.section===s.id).map(t=>t.id),'summary:'+s.id]),'summary:home'];}
+  function routeTitle(id){if(id==='home')return '笔记介绍';if(id==='summary:home')return '整份笔记总结';const section=summaryFor(id);return section?section.title+' · 总结':model.topics.find(t=>t.id===id)?.title||model.sections.find(s=>s.id===id)?.title||'';}
+  function pageNavigation(){
+    const order=readingOrder(),index=order.indexOf(active),previous=order[index-1],next=order[index+1];
+    return `<nav class="page-nav">${previous?`<a href="#${esc(previous)}">← 上一节：${esc(routeTitle(previous))}</a>`:'<span></span>'}${next?`<a href="#${esc(next)}">下一节：${esc(routeTitle(next))} →</a>`:'<a href="#home">回到笔记介绍 →</a>'}</nav>`;
+  }
   function collect(){
     if(!editing)return;
     model.title=$('document-title').value.trim()||model.title;model.subtitle=$('document-subtitle').value;
     model.settings={theme:$('theme').value,accent:$('accent').value,fontScale:Number($('font-scale').value)};
-    const item=current();if(item!==model)item.title=$('page-title').value.trim()||item.title;
-    item.intro=$('page-intro').value.trim()||item.intro;
-    if(!isTopic())item.summary=$('page-summary').value.trim()||item.summary;
+    const item=current();if(item!==model&&!isSummary())item.title=$('page-title').value.trim()||item.title;
+    if(!isSummary())item.intro=$('page-intro').value.trim()||item.intro;
+    if(isSummary())item.summary=$('page-summary').value.trim()||item.summary;
     if(isTopic()&&$('editable-body')){
       for(const code of $('editable-body').querySelectorAll('code[data-source]')){
         const copy=code.cloneNode(true);copy.querySelectorAll('.line-no').forEach(x=>x.remove());
@@ -72,18 +80,20 @@
     $('document-title').value=model.title;$('document-subtitle').value=model.subtitle||'';
     $('theme').value=model.settings?.theme||'light';$('accent').value=model.settings?.accent||'olive';
     const scale=String(model.settings?.fontScale||1);if(![...$('font-scale').options].some(option=>option.value===scale))$('font-scale').add(new Option(scale+'×',scale));$('font-scale').value=scale;
-    const item=current();$('page-title').value=item.title;$('page-title-label').hidden=active==='home';
+    const item=current();$('page-title').value=item.title;$('page-title-label').hidden=active==='home'||isSummary();
     $('page-intro').value=item.intro||'';$('page-summary').value=item.summary||'';
-    $('summary-label').hidden=isTopic();$('delete-topic').hidden=!isTopic();$('image-label').hidden=!isTopic();
+    $('page-intro-label').hidden=isSummary();$('summary-label').hidden=!isSummary();$('delete-topic').hidden=!isTopic();$('image-label').hidden=!isTopic();
   }
   function nav(){
     const q=$('search').value.trim().toLocaleLowerCase();
     let html=`<a href="#home" ${active==='home'?'aria-current="page"':''}>主题总览 · Introduction</a>`;
     for(const section of model.sections){
       const topics=model.topics.filter(t=>t.section===section.id&&(!q||(t.title+' '+t.intro+' '+t.body.replace(/<[^>]+>/g,' ')).toLocaleLowerCase().includes(q)));
-      if(q&&!topics.length&&!section.title.toLocaleLowerCase().includes(q))continue;
-      html+=`<div class="nav-section"><a href="#${esc(section.id)}" ${active===section.id?'aria-current="page"':''}>${esc(section.title)}</a><div class="nav-children">${topics.map(t=>`<a href="#${esc(t.id)}" ${active===t.id?'aria-current="page"':''}>${esc(t.title)}</a>`).join('')}</div></div>`;
+      if(q&&!topics.length&&!(section.title+' '+section.intro+' '+section.summary).toLocaleLowerCase().includes(q))continue;
+      const summaryId='summary:'+section.id;
+      html+=`<div class="nav-section"><a href="#${esc(section.id)}">${esc(section.title)}</a><div class="nav-children"><a class="nav-intro" href="#${esc(section.id)}" ${active===section.id?'aria-current="page"':''}>介绍 · Introduction</a>${topics.map(t=>`<a class="nav-topic" href="#${esc(t.id)}" ${active===t.id?'aria-current="page"':''}>${esc(t.title)}</a>`).join('')}<a class="nav-summary" href="#${esc(summaryId)}" ${active===summaryId?'aria-current="page"':''}>总结 · Summary</a></div></div>`;
     }
+    html+=`<a class="nav-document-summary" href="#summary:home" ${active==='summary:home'?'aria-current="page"':''}>整份笔记总结</a>`;
     $('navigation').innerHTML=html;
   }
   function sourceList(ids){
@@ -96,22 +106,26 @@
     appearance();nav();fields();const item=current();
     if(active==='home'){
       $('breadcrumb').textContent='主题总览 / Introduction';
-      $('content').innerHTML=`<p class="eyebrow">THE BIG PICTURE / 主题总览</p><h1>${esc(model.title)}</h1><p class="subtitle">${esc(model.subtitle||'')}</p><p class="lead">${esc(model.intro)}</p><div class="count-line"><span>${model.sections.length} 个大章节</span><span>${model.topics.length} 个专题</span><span>图解 · 依据 · 可编辑</span></div><section class="overview-summary"><h2>先把整件事说清楚</h2><p>${esc(model.summary)}</p></section><h2>内容地图</h2><p>先看每个大主题的简介和总结，再进入需要的小节。</p><div class="content-map">${model.sections.map(row).join('')}</div>${sourceList()}`;
+      $('content').innerHTML=`<p class="eyebrow">THE BIG PICTURE / 笔记介绍</p><h1>${esc(model.title)}</h1><p class="subtitle">${esc(model.subtitle||'')}</p><p class="lead">${esc(model.intro)}</p><div class="count-line"><span>${model.sections.length} 个大章节</span><span>${model.topics.length} 个专题</span><span>介绍 → 内容小节 → 板块总结</span></div><h2>内容地图</h2><p>每个板块先介绍背景和范围，再展开小节，最后用专门的小节总结。</p><div class="content-map">${model.sections.map(row).join('')}${row({id:'summary:home',title:'整份笔记总结',intro:'读完各板块后，回看整份笔记的联系、结论与待确认问题。'},model.sections.length)}</div>${sourceList()}${pageNavigation()}`;
+    }else if(isSummary()){
+      const whole=item===model;const title=whole?'整份笔记总结':item.title+' · 总结';
+      $('breadcrumb').textContent=title;
+      $('content').innerHTML=`<p class="eyebrow">${whole?'NOTE SUMMARY / 整份笔记总结':'SECTION SUMMARY / 板块最后一节'}</p><h1>${esc(title)}</h1><section class="overview-summary"><h2>${whole?'整份笔记的联系与结论':'这一板块的总结'}</h2><p>${esc(item.summary)}</p></section>${pageNavigation()}`;
     }else if(isTopic()){
       const section=model.sections.find(s=>s.id===item.section);$('breadcrumb').textContent=section.title+' / '+item.title;
-      const index=model.topics.indexOf(item),next=model.topics[index+1];
-      $('content').innerHTML=`<p class="eyebrow">${esc(section.title)}</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><div id="editable-body" class="note-body" ${editing?'contenteditable="true" spellcheck="false"':''}>${safeBody(item.body)}</div>${sourceList(item.sources||[])}<nav class="page-nav"><a href="#${esc(section.id)}">← 大主题介绍与总结</a>${next?`<a href="#${esc(next.id)}">下一节：${esc(next.title)} →</a>`:'<a href="#home">回到整体总结 →</a>'}</nav>`;
+      $('content').innerHTML=`<p class="eyebrow">${esc(section.title)}</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><div id="editable-body" class="note-body" ${editing?'contenteditable="true" spellcheck="false"':''}>${safeBody(item.body)}</div>${sourceList(item.sources||[])}${pageNavigation()}`;
       window.NotemakerWidgets?.init($('content'));
       if(editing)$('editable-body').addEventListener('input',markDirty);
     }else{
       $('breadcrumb').textContent=item.title+' / 大主题概览';
-      $('content').innerHTML=`<p class="eyebrow">SECTION OVERVIEW / 大主题介绍</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><section class="overview-summary"><h2>这一部分的总结</h2><p>${esc(item.summary)}</p></section><h2>再看具体内容</h2><div class="content-map">${model.topics.filter(t=>t.section===item.id).map(row).join('')}</div><nav class="page-nav"><a href="#home">← 整体介绍与总结</a></nav>`;
+      const topics=model.topics.filter(t=>t.section===item.id);
+      $('content').innerHTML=`<p class="eyebrow">SECTION OVERVIEW / 板块介绍</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><h2>这一板块如何展开</h2><div class="content-map">${topics.map(row).join('')}${row({id:'summary:'+item.id,title:'总结',intro:'在内容小节之后，梳理这一板块的联系、结论与待确认事项。'},topics.length)}</div>${pageNavigation()}`;
     }
   }
   function route(){
     if(saving)return;
     collect();let id;try{id=decodeURIComponent(location.hash.slice(1))||'home';}catch{id='home';}
-    active=model.topics.some(t=>t.id===id)||model.sections.some(s=>s.id===id)?id:'home';
+    active=model.topics.some(t=>t.id===id)||model.sections.some(s=>s.id===id)||summaryFor(id)?id:'home';
     render();$('sidebar').classList.remove('open');$('shade').hidden=true;$('menu').setAttribute('aria-expanded','false');
     window.scrollTo(0,0);
   }
@@ -130,7 +144,7 @@
     saving=value;for(const el of document.querySelectorAll('button,input,select,textarea'))el.disabled=value;
     if($('editable-body'))$('editable-body').setAttribute('contenteditable',String(!value&&editing));
   }
-  function candidate(){collect();const result=clone(model);result.meta={...(result.meta||{}),exportedAt:new Date().toISOString(),generator:'notemaker/1.0'};return result;}
+  function candidate(){collect();const result=clone(model);result.meta={...(result.meta||{}),exportedAt:new Date().toISOString(),generator:'notemaker/1.1'};return result;}
   async function nativeSave(saveAs=false){
     if(saving)return;
     if(typeof window.showSaveFilePicker!=='function'||!window.isSecureContext){download();return;}
@@ -162,7 +176,7 @@
     collect();const id='section-'+Date.now().toString(36);model.sections.push({id,title:'新的大主题',intro:'请介绍这一主题的背景、范围和读者要回答的问题。',summary:'请总结这一主题的重要结论与尚不明确之处。'});markDirty();location.hash=id;
   });
   $('add-topic').addEventListener('click',()=>{
-    collect();const section=isTopic()?current().section:active==='home'?model.sections[0].id:active;
+    collect();const section=isTopic()?current().section:current()===model?model.sections[0].id:current().id;
     const id='topic-'+Date.now().toString(36);model.topics.push({id,section,title:'新的小节',intro:'这一节要回答什么问题？',body:'<h2>先说清楚</h2><p>点击这里开始写下你的解释、记录或观察。</p>',sources:[]});markDirty();location.hash=id;
   });
   $('delete-topic').addEventListener('click',()=>{

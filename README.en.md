@@ -10,8 +10,9 @@ Notemaker is an installable AI skill with a small, framework-free HTML generator
 
 ## What it produces
 
-- A substantial **overall introduction, synthesis, and content map**, displayed before any subsection.
-- An **introduction and summary for every major section**, followed by the relevant concepts, examples, discussions, decisions, or evidence.
+- An **overall introduction and content map first**, with the note-wide synthesis at the end.
+- Every major section follows **introduction → content subsections → a final summary subsection**. Introductions establish context/scope/questions; closing summaries connect the material, conclusions, and open issues.
+- Sections may represent course modules, meeting agenda items, literature themes, or project areas. Names and summary content adapt to the sources; Day labels are only one possible example.
 - Section/topic navigation, search, zoomable figures, code, tables, printing, and a mobile directory.
 - Source labels and a distinction between source facts, model synthesis, and unresolved questions.
 - Edit mode for titles, introductions, summaries, body text, code, captions, new sections/topics, embedded local images, theme, accent color, and font size.
@@ -35,7 +36,7 @@ Copy `skills/notemaker/` into `~/.codex/skills/notemaker/`, or use your AI clien
 
 Example requests:
 
-> Use $notemaker to turn this slide deck and my course notes into visual HTML. Introduce the whole course first, then provide module summaries and examples. Preserve sources and let me edit and save locally.
+> Use $notemaker to turn this slide deck and my course notes into visual HTML. Introduce each module, develop its examples, and finish with a dedicated summary subsection. Preserve sources and let me edit and save locally.
 
 > Use $notemaker for these meeting notes. Separate discussion, decisions, action items, and unresolved questions. Do not invent owners or dates.
 
