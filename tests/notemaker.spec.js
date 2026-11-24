@@ -1,6 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs/promises');
 const path=require('node:path');
+const {pathToFileURL}=require('node:url');
 const ROOT=path.resolve(__dirname,'..');
 const URL='http://127.0.0.1:8873/examples/general-note.html';
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ioAAAAASUVORK5CYII=','base64');
@@ -49,9 +50,9 @@ test('unsaved changes request a close warning; cancel clears the warning',async(
 
 test('real HTML download reopens with edited title, summary, code, image and settings',async({page,browser})=>{
   await page.addInitScript(()=>{window.showSaveFilePicker=undefined;});await topic(page);await page.locator('#edit').click();
-  await page.locator('#navigation a[href="#home"]').click();await page.locator('#page-intro').fill('Persisted overall introduction');await page.locator('#page-summary').fill('Persisted overall synthesis');
-  await page.locator('#navigation a[href="#course"]').click();await page.locator('#page-intro').fill('Persisted section introduction');await page.locator('#page-summary').fill('Persisted section summary');
-  await page.locator('#navigation a[href="#course-example"]').click();
+  await page.locator('#navigation a[href="#home"]').click();await expect(page.locator('#content > .eyebrow')).toContainText('THE BIG PICTURE');await page.locator('#page-intro').fill('Persisted overall introduction');await page.locator('#page-summary').fill('Persisted overall synthesis');
+  await page.locator('#navigation a[href="#course"]').click();await expect(page.locator('#content > .eyebrow')).toContainText('SECTION OVERVIEW');await page.locator('#page-intro').fill('Persisted section introduction');await page.locator('#page-summary').fill('Persisted section summary');
+  await page.locator('#navigation a[href="#course-example"]').click();await expect(page.locator('#editable-body')).toBeVisible();
   await page.locator('#document-title').fill('Round trip saved note');await page.locator('#page-intro').fill('Updated topic introduction');
   await page.locator('#editable-body').evaluate(el=>{el.querySelector('p').textContent='Round-trip body text';el.querySelector('code').textContent='print("persisted code")';el.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('#image-input').setInputFiles({name:'round-trip.png',mimeType:'image/png',buffer:PNG});await expect(page.locator('#editable-body img')).toHaveCount(1);
@@ -60,7 +61,7 @@ test('real HTML download reopens with edited title, summary, code, image and set
   const target=path.join(ROOT,'artifacts/round-trip.html');await download.saveAs(target);
   await expect(page.locator('#status')).toContainText('已请求下载');await expect(page.locator('#dirty-indicator')).toBeVisible();
   const bytes=await fs.readFile(target,'utf8');expect(bytes).toContain('Round trip saved note');expect(bytes).toContain('persisted code');expect(bytes).toContain('data:image/png;base64,');expect(bytes).not.toContain('localStorage');
-  const reopened=await browser.newPage();await reopened.goto('file:///'+target.replaceAll('\\','/')+'#course-example');
+  const reopened=await browser.newPage();await reopened.goto(pathToFileURL(target).href+'#course-example');
   await expect(reopened.locator('#editable-body')).toContainText('Round-trip body text');await expect(reopened.locator('code')).toContainText('persisted code');
   expect(await reopened.locator('#editable-body img').evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);
   await expect(reopened.locator('body')).toHaveAttribute('data-theme','dark');await expect(reopened.locator('.lead')).toHaveText('Updated topic introduction');
