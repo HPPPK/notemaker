@@ -63,6 +63,8 @@ The public example is fictional interface material. External-source cases and pr
 
 ## Verification
 
+Paper and course workflows are now distinct: papers explain the problem, contribution, mechanism, essential mathematics and evidence; teaching notes prioritize concepts, original visuals and solved exercises over logistics. See [workflow comparison and evaluation scope](docs/reading-workflow-review.md).
+
 ```sh
 npm ci
 npx playwright install chromium

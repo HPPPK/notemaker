@@ -6,7 +6,7 @@ A working editor, long introduction, or passing browser test does not establish 
 
 Before drafting, identify the actual units that matter: slide/page ranges, agenda issues with their discussion, or the paper's arguments/rules/experiments. Map each to a topic, or record why it is intentionally omitted, only listed on an agenda, or unread. Title/credits slides may share one metadata topic; an agenda item with no discussion must remain explicitly unrecorded. Do not fabricate completion to make coverage look neat.
 
-Keep source-grounded detail in body subsections: relevant definitions, concrete claims, reasons/evidence, examples, status and qualifications. Use the introduction to orient the reader and the conclusion to integrate that body. They should not carry more substance than the body while repeating generic warnings.
+Select units by the reader's purpose before counting coverage. Knowledge notes should prioritize concepts, mechanisms and evidence; administrative slides can be intentionally omitted with a reason. Coverage of irrelevant material is not relevance. Keep source-grounded detail in body subsections: relevant definitions, concrete claims, reasons/evidence, examples, status and qualifications. Use the introduction to orient the reader and the conclusion to integrate that body. They should not carry more substance than the body while repeating generic warnings.
 
 ## Generate, then evaluate the skill's output
 
@@ -22,9 +22,9 @@ Use different source types to check transfer: source-specific detail, traceabili
 
 ## Adapt the review to the source
 
-- **Slides:** retain learning objectives, actual concepts, specific requirements where stated, and the relationship between slides. Explain compressed bullets. Attribute added worked examples; do not call them slide content. Retain historical dates and metadata discrepancies. Disclose image-only or visually unreviewed content.
+- **Slides:** follow course-learning.md. Prioritize actual knowledge, relationships, diagrams, formulas and solved practice; administrative requirements are secondary unless requested. Explain compressed bullets and attribute added solutions. Disclose image-only or visually unreviewed content.
 - **Meetings:** for each material issue, preserve what was asked, who responded when recorded, the reasoning and disagreement, exact status, and follow-up. Separate proposer from assigned owner. A suggestion, intention, agreement and completed action are different. Do not turn agenda headings into invented discussions, assign unstated dates, or treat historical statuses as current.
-- **Papers:** identify the paper type. Explain the actual contributions/arguments and evidence at useful granularity. A ten-rule article should account for all ten rules rather than hide them in broad categories; an experimental paper needs its actual method, setup, baselines and limitations rather than a forced ten-rule template. Separate author statements, note-author interpretation and invented illustrative examples. Never invent metrics or experiments.
+- **Papers:** follow paper-reading.md. Explain motivation, contribution, mechanism, load-bearing math and evidence in their causal relationship. A guidance article is not an adequate sole test of technical paper reading; evaluate a methods paper with original visuals, formulas and experiments as well. Separate source statements, interpretation and added examples. Never invent metrics or experiments.
 
 ## Check substance, then interface
 

@@ -138,6 +138,28 @@ test('revised-skill source cases retain mapped details and save real cell edits 
   }
 });
 
+test('technical source notes render original visuals and retain math and solved examples after Save',async({page})=>{
+  let entries;try{entries=JSON.parse(await fs.readFile(path.join(ROOT,'private-preview/technical-evaluation-manifest.json'),'utf8'));}catch{test.skip(true,'Local technical source cases are not redistributed.');return;}
+  for(const entry of entries){
+    const live=await launch(entry.html);
+    try{
+      await page.goto(live.url);const original=await page.evaluate(()=>Notemaker.getModel());
+      expect(entry.coverage_errors).toEqual([]);let images=0;
+      for(const topic of original.topics){await navigate(page,topic.id);images+=await page.locator('#editable-body img').count();await page.waitForFunction(()=>[...document.querySelectorAll('#editable-body img')].every(img=>img.complete&&img.naturalWidth>0));}
+      expect(images).toBeGreaterThanOrEqual(entry.visuals.length);
+      for(const query of entry.reviewQueries){await navigate(page,query.topic);for(const detail of query.contains)await expect(page.locator('#notebook-cells')).toContainText(detail);}
+      await navigate(page,entry.reviewQueries[0].topic);
+      await page.screenshot({path:path.join(ROOT,'private-preview/'+entry.name+'-body.png'),fullPage:true});
+      await page.locator('#edit').click();await page.locator('[data-cell-add=html]').click();await page.locator('.cell-content').last().fill('A reader annotation after the original explanation');await save(page);await page.reload();
+      await expect(page.locator('#notebook-cells')).toContainText('A reader annotation');
+      const persisted=await dataFromFile(live.note);
+      const imageCount=m=>JSON.stringify(m).split('data:image/').length-1;
+      expect(imageCount(persisted)).toBe(imageCount(original));
+      await navigate(page,'summary:'+original.sections[0].id);await expect(page.locator('.overview-summary')).toBeVisible();
+    }finally{live.process.kill();}
+  }
+});
+
 test('enriched user note retains all figures and supports real in-place cell editing',async({page})=>{
   let report;try{report=JSON.parse(await fs.readFile(path.join(ROOT,'private-preview/timeseries-enrichment-report.json'),'utf8'));}catch{test.skip(true,'Private user note is not distributed.');return;}
   const live=await launch(report.html);

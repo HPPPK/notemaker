@@ -70,6 +70,8 @@ python skills/notemaker/scripts/build_note.py edited-note.html --extract recover
 
 ## 开发验证
 
+论文与课件的内容流程已分开：论文说明问题、贡献、机制、核心公式与实验依据；课件优先讲知识、原图与例题解答，课程通知和成绩不占用知识主线。参见 [流程对照与验证范围](docs/reading-workflow-review.md)。
+
 ```sh
 npm ci
 npx playwright install chromium
