@@ -1,0 +1,8 @@
+{
+  "name": "notemaker-skill",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Editable, source-grounded visual notes in one offline HTML file",
+  "scripts": {"test": "playwright test", "build:demo": "python skills/notemaker/scripts/build_note.py examples/general-note.json --output examples/general-note.html"},
+  "devDependencies": {"@playwright/test": "^1.58.0"}
+}

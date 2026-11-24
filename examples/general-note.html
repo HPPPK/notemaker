@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark"><title>把学到的、讨论的、读过的，连成一份笔记。 · Notemaker</title><style>:root{--bg:#f8f7f3;--surface:#fff;--ink:#262b28;--muted:#69716a;--line:#dedfd6;--accent:#526146;--soft:#edf0e7;--size:1;font:calc(16px * var(--size))/1.85 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--ink);background:var(--bg);color-scheme:light}
+*{box-sizing:border-box}body{margin:0}body[data-theme=dark]{--bg:#181d1b;--surface:#212825;--ink:#e4e8e2;--muted:#aab5ac;--line:#3d4940;--soft:#2c392c;color-scheme:dark}a{color:var(--accent);text-underline-offset:4px}button,input,textarea,select{font:inherit;color:inherit}button,.button{border:1px solid var(--line);border-radius:7px;padding:.4rem .8rem;background:var(--surface);cursor:pointer;text-decoration:none;line-height:1.7}button:hover,.button:hover{border-color:var(--accent)}button:disabled{opacity:.5;cursor:wait}.primary{background:var(--accent);color:white;border-color:var(--accent)}input,textarea,select{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.55rem .7rem}textarea{resize:vertical}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:3px}[hidden]{display:none!important}.skip{position:fixed;left:20px;top:-100px;z-index:100}.skip:focus{top:10px;background:var(--surface);padding:10px}
+#sidebar{position:fixed;inset:0 auto 0 0;width:275px;padding:32px 22px 18px;border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;z-index:30}.wordmark{text-decoration:none;font:600 30px/1.2 Georgia,serif;letter-spacing:-1.4px;color:var(--ink);margin-bottom:32px}.wordmark span{color:var(--accent)}.wordmark small{display:block;margin-top:12px;font:12px/1.6 system-ui;letter-spacing:.5px;color:var(--muted)}.search-label{font-size:12px;color:var(--muted);margin-bottom:6px}#search{font-size:13px;margin-bottom:22px}#navigation{overflow:auto;flex:1}#navigation a{display:block;text-decoration:none;color:var(--muted);font-size:13px;padding:7px 10px;border-radius:4px;margin-bottom:3px}#navigation a[aria-current=page]{background:var(--soft);color:var(--accent);font-weight:650}.nav-section{margin-top:15px}.nav-section>a{font-weight:650!important;color:var(--ink)!important}.nav-children{border-left:1px solid var(--line);margin-left:10px;padding-left:6px}.sidebar-footer{font-size:11px;color:var(--muted);padding-top:20px;margin-bottom:0}.shell{margin-left:275px}.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:15px 34px;background:var(--bg)}#breadcrumb{font-size:12px;color:var(--muted)}.actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.actions button{font-size:12px}#dirty-indicator{font-size:11px;color:var(--accent)}#menu{display:none}#status{padding:8px 36px;font-size:12px;border-bottom:1px solid var(--line);color:var(--muted);min-height:39px}#status.error{color:#bc4734}#content{max-width:1080px;margin:0 auto;padding:58px 58px 70px;min-height:75vh;outline:none}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:650;margin:0 0 20px}h1{font-size:clamp(2rem,3.7vw,3.5rem);line-height:1.23;font-weight:550;letter-spacing:-1.2px;margin:0 0 25px;max-width:850px}h2{font-size:1.35rem;line-height:1.5;font-weight:650;margin:45px 0 17px}h3{font-size:1.06rem;margin-top:28px}.lead{font-size:1.1rem;color:var(--muted);max-width:780px;white-space:pre-line}.subtitle{font-size:12px;color:var(--muted);margin-bottom:26px}.overview-summary{margin-top:35px;border-left:3px solid var(--accent);padding:4px 0 4px 24px;white-space:pre-line}.overview-summary h2{margin-top:0}.content-map{margin-top:35px}.map-row{display:grid;grid-template-columns:52px 1fr 20px;gap:15px;text-decoration:none;color:var(--ink);border-top:1px solid var(--line);padding:23px 0}.map-row:last-child{border-bottom:1px solid var(--line)}.map-number{font:italic 24px Georgia,serif;color:var(--accent)}.map-title{font-weight:650}.map-description{display:block;font-size:13px;color:var(--muted);margin-top:6px;line-height:1.8}.count-line{display:flex;gap:25px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding-top:25px}.note-body{margin-top:32px}.note-body p,.note-body li{max-width:850px}.note-body img{max-width:100%;height:auto;display:block;margin:auto;cursor:zoom-in}.note-body figure{margin:30px 0;border:1px solid var(--line);background:white;padding:14px}.note-body figcaption{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.7;white-space:normal}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px;margin:22px 0;display:block;overflow:auto}th,td{border:1px solid var(--line);padding:10px 13px;min-width:80px;text-align:left;vertical-align:top}th{background:var(--soft)}pre{overflow:auto;border:1px solid var(--line);padding:20px;background:var(--surface);font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88em;white-space:pre-wrap}.line-no{display:none}.code-line{display:block}.codebar{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}.formula{border-left:2px solid var(--accent);padding:15px 20px;font-family:ui-monospace,monospace;white-space:pre-wrap;overflow:auto}.callout,blockquote{background:var(--soft);border-left:3px solid var(--accent);padding:18px 23px;margin:24px 0}.callout p:last-child{margin-bottom:0}details{margin:20px 0}summary{cursor:pointer;font-weight:600}.sources{margin-top:45px;border-top:1px solid var(--line);padding-top:15px;font-size:12px;color:var(--muted)}.sources ul{padding-left:20px}.page-nav{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);margin-top:50px;padding-top:20px;font-size:13px}.page-footer{text-align:center;padding:30px;font-size:11px;color:var(--muted)}
+#editor-panel{max-width:1080px;margin:20px auto 0;padding:24px 40px;background:var(--surface);border:1px solid var(--line);border-radius:8px}.editor-heading{display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-bottom:20px}.editor-heading span{color:var(--muted)}.settings-grid{display:grid;grid-template-columns:2fr 2fr 1fr 1fr 1fr;gap:12px}#editor-panel label{font-size:12px;display:block}#page-fields{display:grid;grid-template-columns:1fr 2fr 2fr;gap:15px;margin-top:18px}.edit-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:20px}.edit-tools button,.edit-tools .button{font-size:12px}.edit-tools span{font-size:11px;color:var(--muted)}[contenteditable=true]{outline:2px dashed var(--accent);outline-offset:10px;min-height:150px}.lab{padding:20px;background:var(--surface);border:1px solid var(--line);margin:24px 0}.lab label{font-size:13px;display:block}.lab svg{width:100%;height:auto}.lab-pair{display:grid;grid-template-columns:1fr 1fr;gap:15px}#image-dialog{max-width:95vw;max-height:95vh;background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:20px}#image-dialog::backdrop{background:#0009}#large-image{display:block;max-width:85vw;max-height:75vh;object-fit:contain;margin:15px auto}#large-caption{font-size:12px}#shade{position:fixed;inset:0;background:#0006;border:0;z-index:25}
+h1{text-wrap:balance}
+@media(max-width:1050px){.topbar{padding:12px 20px}.settings-grid{grid-template-columns:1fr 1fr}#page-fields{grid-template-columns:1fr}#content{padding:40px 30px}#breadcrumb{display:none}}
+@media(max-width:760px){#sidebar{transform:translateX(-100%);transition:transform .2s}#sidebar.open{transform:translateX(0)}.shell{margin-left:0}#menu{display:block}.topbar{gap:8px}.actions{justify-content:flex-end}.actions button{font-size:11px;padding:5px 8px}#content{padding:35px 22px}#status{padding:8px 22px}#editor-panel{margin:10px;padding:18px}.settings-grid{grid-template-columns:1fr 1fr}.editor-heading{display:block}.editor-heading span{display:block;margin-top:8px}.lab-pair{grid-template-columns:1fr}.map-row{grid-template-columns:36px 1fr 15px;gap:9px}h1{font-size:2.2rem}}
+@media print{#sidebar,.topbar,#status,#editor-panel,.page-footer,.page-nav,.copy-code{display:none!important}.shell{margin:0}#content{padding:0;max-width:none}.note-body img{max-height:650px}.note-body pre{white-space:pre-wrap}body{background:white;color:black}}
+</style></head>
+<body>
+<a href="#content" class="skip">跳到正文 / Skip to content</a>
+<aside id="sidebar"><a class="wordmark" href="#home">note<span>maker</span><small>一份可以继续生长的笔记</small></a><label class="search-label" for="search">检索这份笔记</label><input id="search" type="search" placeholder="搜索主题、解释、代码…"><nav id="navigation" aria-label="内容目录"></nav><p class="sidebar-footer">先看全貌，再进入细节。<br>离线阅读 · 编辑后手动保存</p></aside>
+<button id="shade" aria-label="关闭目录" hidden></button>
+<div class="shell"><header class="topbar"><button id="menu" aria-label="展开目录" aria-expanded="false">☰</button><span id="breadcrumb">主题总览</span><div class="actions"><span id="dirty-indicator" hidden>尚未保存</span><button id="edit">Edit · 编辑</button><button id="cancel" hidden>取消</button><button id="save" hidden class="primary">Save · 保存 HTML</button><button id="save-as" hidden>另存为</button><button id="export" hidden>下载 HTML 副本</button><button id="print">打印</button></div></header>
+<div id="status" role="status" aria-live="polite">本地笔记 · 阅读模式</div>
+<section id="editor-panel" hidden aria-label="笔记编辑设置"><div class="editor-heading"><strong>编辑这份笔记</strong><span>正文可直接点击修改；没有自动保存。</span></div><div class="settings-grid"><label>整份笔记标题<input id="document-title"></label><label>副标题<input id="document-subtitle"></label><label>主题<select id="theme"><option value="light">浅色</option><option value="dark">深色</option></select></label><label>强调色<select id="accent"><option value="olive">橄榄绿</option><option value="blue">蓝</option><option value="plum">紫</option><option value="terracotta">陶土红</option></select></label><label>字号<select id="font-scale"><option value="0.9">紧凑</option><option value="1">标准</option><option value="1.15">较大</option><option value="1.3">大字</option></select></label></div>
+<div id="page-fields"><label id="page-title-label">当前页标题<input id="page-title"></label><label>当前页介绍<textarea id="page-intro" rows="3"></textarea></label><label id="summary-label">整体 / 大章节总结<textarea id="page-summary" rows="4"></textarea></label></div>
+<div class="edit-tools"><button id="apply">更新预览</button><button id="add-section">新增大章节</button><button id="add-topic">新增小节</button><button id="delete-topic" hidden>删除当前小节</button><label class="button" id="image-label">插入本地图片<input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label><span>可修改正文、代码、图注；粘贴文本不会运行脚本。</span></div></section>
+<main id="content" tabindex="-1"></main><footer class="page-footer">Notemaker · 独立 HTML · 内容和图片保存在你选择的文件里</footer></div>
+<dialog id="image-dialog"><button id="close-image">关闭 / Close</button><img id="large-image" alt=""><p id="large-caption"></p></dialog>
+<script id="notemaker-data" type="application/json">{"version": 1, "title": "把学到的、讨论的、读过的，连成一份笔记。", "subtitle": "Notemaker / 通用示例 · 所有场景与数据均为虚构", "intro": "这份示例把课程学习、会议记录和文献阅读放进同一本笔记。先交代整件事的背景，再按大主题进入具体内容；每个结论都能看出来自材料、讨论，还是整理者的推断。", "summary": "这份笔记围绕一个共同问题：怎样把零散的信息整理成可以回看、核对和修改的知识？\n课程部分先解释概念与例子；会议部分区分讨论、已确认决定和待办；文献部分区分作者声称什么、证据支持什么、还不知道什么。三类材料共用导航和编辑方式，但不强迫使用同一套内容结构。\n点击 Edit 可以直接修改正文、整体介绍和大章节总结。点击 Save 才会请求写入本地 HTML；不支持直接写文件的浏览器会导出完整的新 HTML。", "settings": {"theme": "light", "accent": "olive", "fontScale": 1}, "sections": [{"id": "course", "title": "课程笔记：从问题到例子", "intro": "课程内容应先讲这门课解决什么问题，再解释概念以及它与已有知识的关系。例子用来让抽象定义变得具体。", "summary": "不要只抄幻灯片。保留概念的含义、一个能算清楚的例子，以及你暂时不理解的问题。课程材料与自己的解释应区分。"}, {"id": "meeting", "title": "会议记录：从讨论到行动", "intro": "一份好会议笔记先说明会议为什么开、讨论范围是什么，再把讨论、决定、行动分别记清楚。", "summary": "被提到的想法不等于已通过的决定。待办应保留负责人、交付物和期限；材料没有写明时，标记待确认，不自行编造。"}, {"id": "reading", "title": "文献阅读：从主张到证据", "intro": "阅读论文时，先问作者研究什么问题，再问用了什么办法、给了哪些证据、这些证据覆盖了什么边界。", "summary": "论文中的结论不是无条件事实。把研究问题、方法、实证与局限分开记录，有助于比较不同文献，也能避免把整理者推断写成作者原话。"}], "topics": [{"id": "course-example", "section": "course", "title": "一个概念，配一个真正有用的例子", "intro": "例子要能解释计算到底在做什么，而不是只展示公式。", "body": "\u003ch2>平均值在概括什么？\u003c/h2>\u003cp>假设三次观测为 2、4、6。平均值为 4：它概括整体水平，不保留每一次观测的细节。这里的数值是教学例子，不是实验结果。\u003c/p>\u003cpre>\u003ccode>values = [2, 4, 6]\nmean = sum(values) / len(values)\u003c/code>\u003c/pre>\u003caside class=\"callout\">\u003cstrong>关键区别\u003c/strong>\u003cp>平均值一样，不代表波动一样。下一步应通过图或实际数字比较，而不是马上引入更多术语。\u003c/p>\u003c/aside>\u003cfigure>\u003csvg viewBox=\"0 0 800 180\" role=\"img\" aria-label=\"材料到解释再到核对的三步关系\">\u003crect x=\"20\" y=\"45\" width=\"200\" height=\"85\" fill=\"#edf0e7\"/>\u003ctext x=\"60\" y=\"95\" fill=\"#26302b\" font-size=\"24\">读材料\u003c/text>\u003cline x1=\"235\" y1=\"88\" x2=\"285\" y2=\"88\" stroke=\"#526146\" stroke-width=\"3\"/>\u003crect x=\"300\" y=\"45\" width=\"200\" height=\"85\" fill=\"#edf0e7\"/>\u003ctext x=\"340\" y=\"95\" fill=\"#26302b\" font-size=\"24\">用例子解释\u003c/text>\u003cline x1=\"515\" y1=\"88\" x2=\"565\" y2=\"88\" stroke=\"#526146\" stroke-width=\"3\"/>\u003crect x=\"580\" y=\"45\" width=\"200\" height=\"85\" fill=\"#edf0e7\"/>\u003ctext x=\"620\" y=\"95\" fill=\"#26302b\" font-size=\"24\">回到来源核对\u003c/text>\u003c/svg>\u003cfigcaption>示意图：整理方法，不表示研究数据。\u003c/figcaption>\u003c/figure>", "sources": ["fictional"]}, {"id": "course-questions", "section": "course", "title": "把还没懂的地方留下来", "intro": "开放问题也是笔记的一部分；它们不应该被一段看似完整的总结遮住。", "body": "\u003ch2>待澄清的问题\u003c/h2>\u003cul>\u003cli>什么时候平均值不能代表典型情况？\u003c/li>\u003cli>图形能补充平均值丢掉的哪些信息？\u003c/li>\u003c/ul>\u003cp>你可以点击 Edit，把这些问题换成自己真正卡住的地方。\u003c/p>", "sources": ["fictional"]}, {"id": "meeting-decisions", "section": "meeting", "title": "讨论过，不等于决定了", "intro": "以下只是虚构会议示例，用来展示记录结构。", "body": "\u003ctable>\u003cthead>\u003ctr>\u003cth>类型\u003c/th>\u003cth>内容\u003c/th>\u003cth>状态\u003c/th>\u003c/tr>\u003c/thead>\u003ctbody>\u003ctr>\u003ctd>讨论\u003c/td>\u003ctd>是否增加一个快速入门页\u003c/td>\u003ctd>提出方案，未确认\u003c/td>\u003c/tr>\u003ctr>\u003ctd>决定\u003c/td>\u003ctd>先验证离线编辑后的文件能重新打开\u003c/td>\u003ctd>示例中的已确认决定\u003c/td>\u003c/tr>\u003ctr>\u003ctd>待确认\u003c/td>\u003ctd>下次评审时间\u003c/td>\u003ctd>材料未提供\u003c/td>\u003c/tr>\u003c/tbody>\u003c/table>", "sources": ["fictional"]}, {"id": "meeting-actions", "section": "meeting", "title": "待办写清楚交付物", "intro": "没有负责人或日期时，准确的记录是待确认。", "body": "\u003ctable>\u003cthead>\u003ctr>\u003cth>行动\u003c/th>\u003cth>交付物\u003c/th>\u003cth>负责人\u003c/th>\u003cth>期限\u003c/th>\u003c/tr>\u003c/thead>\u003ctbody>\u003ctr>\u003ctd>验证保存\u003c/td>\u003ctd>重新打开导出的 HTML，确认文字和图片仍在\u003c/td>\u003ctd>待确认\u003c/td>\u003ctd>待确认\u003c/td>\u003c/tr>\u003c/tbody>\u003c/table>", "sources": ["fictional"]}, {"id": "reading-evidence", "section": "reading", "title": "作者主张与证据分开写", "intro": "这里没有引用真实论文，避免用虚构文献制造可信度。", "body": "\u003ch2>阅读模板\u003c/h2>\u003cul>\u003cli>问题：作者具体想解决什么？\u003c/li>\u003cli>方法：输入、过程和输出是什么？\u003c/li>\u003cli>证据：实验、理论还是案例？\u003c/li>\u003cli>局限：结论在哪些条件下没有验证？\u003c/li>\u003c/ul>\u003cblockquote>如果材料未给出数值，就写未提供，而不是补一个看起来合理的结果。\u003c/blockquote>", "sources": ["fictional"]}, {"id": "reading-comparison", "section": "reading", "title": "把比较写成可核对的表", "intro": "比较不同文献时，先统一比较的问题和评价尺度。", "body": "\u003ctable>\u003cthead>\u003ctr>\u003cth>比较维度\u003c/th>\u003cth>需要记录\u003c/th>\u003c/tr>\u003c/thead>\u003ctbody>\u003ctr>\u003ctd>任务\u003c/td>\u003ctd>研究对象与假设\u003c/td>\u003c/tr>\u003ctr>\u003ctd>评价\u003c/td>\u003ctd>指标、数据与实验条件\u003c/td>\u003c/tr>\u003ctr>\u003ctd>证据边界\u003c/td>\u003ctd>未测场景、缺失信息、复现条件\u003c/td>\u003c/tr>\u003c/tbody>\u003c/table>", "sources": ["fictional"]}], "sources": [{"id": "fictional", "label": "Notemaker 通用演示 · 虚构材料，非真实课程、会议或论文", "url": "", "kind": "illustrative example"}]}</script><script>/* Optional, deterministic classroom widgets. Never required for meeting/literature notes. */
+window.NotemakerWidgets={init(scope){
+  const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  const line=(x1,y1,x2,y2,extra='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${extra}/>`;
+  const txt=(x,y,s,extra='')=>`<text x="${x}" y="${y}" font-family="system-ui,sans-serif" font-size="12" fill="currentColor" ${extra}>${escape(s)}</text>`;
+  const lag=scope.querySelector('[data-lab=lag]');
+  if(lag){const slider=lag.querySelector('[data-lag-range]');const render=()=>{const values=[20,22,21,25,24,27,26,28],k=Number(slider.value);lag.querySelector('output').textContent=k;let rows='';for(let i=k;i<values.length;i++)rows+=`<tr><td>第${i+1}条</td><td>${values[i-k]}</td><td>${values[i]}</td></tr>`;lag.querySelector('[data-lag-table]').innerHTML=`<table><thead><tr><th>记录位置</th><th>过去${k}条</th><th>当前值</th></tr></thead><tbody>${rows}</tbody></table><p>8 条记录能配 ${8-k} 对；15 分钟采样下对应 ${15*k} 分钟。</p>`;};slider.addEventListener('input',render);render();}
+  const frequency=scope.querySelector('[data-lab=frequency]');
+  if(frequency){const render=()=>{const root=frequency,f=Number(root.querySelector('[data-freq-range]').value),a=Number(root.querySelector('[data-amp-range]').value);root.querySelector('[data-freq-value]').textContent=f;root.querySelector('[data-amp-value]').textContent=a;const points=[];for(let i=0;i<=400;i++)points.push(`${45+380*i/400},${95-23*a*Math.sin(2*Math.PI*f*2*i/400)}`);let wave=line(45,20,45,175,'stroke="currentColor"')+line(45,175,425,175,'stroke="currentColor"')+`<polyline points="${points.join(' ')}" fill="none" stroke="#5279ad" stroke-width="2"/>`;for(let i=0;i<=2;i++)wave+=txt(45+190*i,193,i,'text-anchor="middle"');wave+=txt(235,209,'时间（天）','text-anchor="middle"');root.querySelector('[data-wave-svg]').innerHTML=wave;const x=45+380*f/5,y=175-42*a;let spectrum=line(45,20,45,175,'stroke="currentColor"')+line(45,175,425,175,'stroke="currentColor"')+line(x,175,x,y,'stroke="#6d8750" stroke-width="4"')+txt(x,y-10,'振幅 '+a,'text-anchor="middle"');for(let i=0;i<=5;i++)spectrum+=txt(45+380*i/5,193,i,'text-anchor="middle"');spectrum+=txt(235,209,'频率（次/天）','text-anchor="middle"');root.querySelector('[data-spectrum-svg]').innerHTML=spectrum;root.querySelector('[data-freq-explain]').textContent=`每天 ${f} 次，每次 ${(24/f).toFixed(1)} 小时；振幅 ${a}。频率改变峰的左右位置，振幅改变峰高。`;};frequency.querySelectorAll('input').forEach(x=>x.addEventListener('input',render));render();}
+  const overlap=scope.querySelector('[data-lab=overlap]');
+  if(overlap){const render=()=>{const value=Number(overlap.querySelector('select').value),step=7*(1-value),starts=[];for(let s=0;s+7<=30+1e-8;s+=step)starts.push(s);const svg=overlap.querySelector('svg'),height=70+starts.length*25;svg.setAttribute('viewBox',`0 0 850 ${height}`);let markup=line(40,25,810,25,'stroke="currentColor"')+txt(40,15,'完整30天');starts.forEach((s,i)=>{markup+=`<rect x="${40+770*s/30}" y="${55+i*25}" width="${770*7/30}" height="15" fill="#708956"/>`;});for(const d of [0,7,14,21,28,30])markup+=txt(40+770*d/30,height-3,d,'text-anchor="middle"');svg.innerHTML=markup;overlap.querySelector('[data-overlap-explain]').textContent=`每段7天，前进${step}天，重叠${7*value}天；共${starts.length}个完整段。各段PSD按同一频率取平均。`;};overlap.querySelector('select').addEventListener('change',render);render();}
+}};
+</script><script>(() => {
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const clone=value=>JSON.parse(JSON.stringify(value));
+  const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  let model=JSON.parse($('notemaker-data').textContent), snapshot=clone(model);
+  let active='home', editing=false, dirty=false, saving=false, fileHandle=null;
+  const accents={olive:['#526146','#b8ce9d'],blue:['#365f8d','#9bc5f5'],plum:['#77547e','#d4afe0'],terracotta:['#94543d','#efb49b']};
+  const tags=new Set('p div span br hr h2 h3 h4 h5 strong b em i u s del ul ol li table thead tbody tfoot tr th td caption pre code figure figcaption img a blockquote aside details summary button label input select option output svg g line polyline rect circle text'.split(' '));
+  const removeWithContent=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','FORM','TEMPLATE','LINK','META','BASE','NOSCRIPT']);
+  const allowedAttrs=new Set('class id title alt src href target rel colspan rowspan scope width height viewbox x y x1 x2 y1 y2 cx cy r rx points fill stroke stroke-width stroke-opacity text-anchor font-family font-size role aria-label aria-hidden type min max step value selected data-source data-lab data-lag-range data-lag-table data-freq-range data-amp-range data-freq-value data-amp-value data-wave-svg data-spectrum-svg data-freq-explain data-overlap-select data-overlap-explain'.split(' '));
+  function safeLink(value){return /^(https?:\/\/|mailto:|#)/i.test(value.trim());}
+  function safeImage(value){return /^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+/=\s]+$/.test(value);}
+  function safeBody(source){
+    const template=document.createElement('template');template.innerHTML=String(source);
+    function clean(parent){
+      for(const node of [...parent.childNodes]){
+        if(node.nodeType===Node.COMMENT_NODE){node.remove();continue;}
+        if(node.nodeType!==Node.ELEMENT_NODE)continue;
+        if(removeWithContent.has(node.tagName)){node.remove();continue;}
+        clean(node);
+        if(!tags.has(node.localName)){node.replaceWith(...node.childNodes);continue;}
+        for(const attr of [...node.attributes]){
+          const key=attr.name.toLowerCase();
+          if(!allowedAttrs.has(key)||key.startsWith('on'))node.removeAttribute(attr.name);
+        }
+        if(node.hasAttribute('id'))node.id='body-'+node.id.replace(/^body-/,'').replace(/[^a-zA-Z0-9_-]/g,'');
+        if(node.localName==='a'){
+          if(!safeLink(node.getAttribute('href')||''))node.removeAttribute('href');
+          node.setAttribute('rel','noopener noreferrer');
+        }
+        if(node.localName==='img'&&!safeImage(node.getAttribute('src')||'')){node.replaceWith(document.createTextNode('[图片未内嵌，已阻止外部资源]'));}
+        if(node.localName==='input'&&node.getAttribute('type')!=='range')node.remove();
+        if(node.localName==='button')node.setAttribute('type','button');
+      }
+    }
+    clean(template.content);return template.innerHTML;
+  }
+  // Re-sanitize on every render and export; JSON remains the canonical content.
+  model.topics.forEach(t=>{t.body=safeBody(t.body);});snapshot=clone(model);
+  function status(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
+  function markDirty(){if(editing){dirty=true;$('dirty-indicator').hidden=false;}}
+  function appearance(){
+    const settings=model.settings||{};document.body.dataset.theme=settings.theme||'light';
+    const pair=accents[settings.accent]||accents.olive;
+    document.documentElement.style.setProperty('--accent',pair[settings.theme==='dark'?1:0]);
+    document.documentElement.style.setProperty('--size',Math.min(1.35,Math.max(.85,Number(settings.fontScale)||1)));
+    document.title=model.title+' · Notemaker';
+  }
+  function current(){return model.topics.find(x=>x.id===active)||model.sections.find(x=>x.id===active)||model;}
+  function isTopic(){return model.topics.some(x=>x.id===active);}
+  function collect(){
+    if(!editing)return;
+    model.title=$('document-title').value.trim()||model.title;model.subtitle=$('document-subtitle').value;
+    model.settings={theme:$('theme').value,accent:$('accent').value,fontScale:Number($('font-scale').value)};
+    const item=current();if(item!==model)item.title=$('page-title').value.trim()||item.title;
+    item.intro=$('page-intro').value.trim()||item.intro;
+    if(!isTopic())item.summary=$('page-summary').value.trim()||item.summary;
+    if(isTopic()&&$('editable-body')){
+      for(const code of $('editable-body').querySelectorAll('code[data-source]')){
+        const copy=code.cloneNode(true);copy.querySelectorAll('.line-no').forEach(x=>x.remove());
+        const lines=copy.querySelectorAll('.code-line');code.dataset.source=lines.length?[...lines].map(x=>x.textContent).join('\n'):copy.textContent;
+      }
+      item.body=safeBody($('editable-body').innerHTML);
+    }
+  }
+  function fields(){
+    $('editor-panel').hidden=!editing;$('edit').hidden=editing;
+    for(const id of ['cancel','save','save-as','export'])$(id).hidden=!editing;
+    $('dirty-indicator').hidden=!dirty;
+    if(!editing)return;
+    $('document-title').value=model.title;$('document-subtitle').value=model.subtitle||'';
+    $('theme').value=model.settings?.theme||'light';$('accent').value=model.settings?.accent||'olive';
+    const scale=String(model.settings?.fontScale||1);if(![...$('font-scale').options].some(option=>option.value===scale))$('font-scale').add(new Option(scale+'×',scale));$('font-scale').value=scale;
+    const item=current();$('page-title').value=item.title;$('page-title-label').hidden=active==='home';
+    $('page-intro').value=item.intro||'';$('page-summary').value=item.summary||'';
+    $('summary-label').hidden=isTopic();$('delete-topic').hidden=!isTopic();$('image-label').hidden=!isTopic();
+  }
+  function nav(){
+    const q=$('search').value.trim().toLocaleLowerCase();
+    let html=`<a href="#home" ${active==='home'?'aria-current="page"':''}>主题总览 · Introduction</a>`;
+    for(const section of model.sections){
+      const topics=model.topics.filter(t=>t.section===section.id&&(!q||(t.title+' '+t.intro+' '+t.body.replace(/<[^>]+>/g,' ')).toLocaleLowerCase().includes(q)));
+      if(q&&!topics.length&&!section.title.toLocaleLowerCase().includes(q))continue;
+      html+=`<div class="nav-section"><a href="#${esc(section.id)}" ${active===section.id?'aria-current="page"':''}>${esc(section.title)}</a><div class="nav-children">${topics.map(t=>`<a href="#${esc(t.id)}" ${active===t.id?'aria-current="page"':''}>${esc(t.title)}</a>`).join('')}</div></div>`;
+    }
+    $('navigation').innerHTML=html;
+  }
+  function sourceList(ids){
+    const sources=(model.sources||[]).filter(s=>!ids||ids.includes(s.id));
+    if(!sources.length)return '';
+    return `<aside class="sources"><strong>来源与依据 / Sources</strong><ul>${sources.map(s=>`<li>${safeLink(s.url||'')?`<a href="${esc(s.url)}" target="_blank">${esc(s.label)}</a>`:esc(s.label)}${s.kind?' · '+esc(s.kind):''}</li>`).join('')}</ul></aside>`;
+  }
+  function row(item,index){return `<a class="map-row" href="#${esc(item.id)}"><span class="map-number">${String(index+1).padStart(2,'0')}</span><span><span class="map-title">${esc(item.title)}</span><span class="map-description">${esc(item.intro)}</span></span><span>↗</span></a>`;}
+  function render(){
+    appearance();nav();fields();const item=current();
+    if(active==='home'){
+      $('breadcrumb').textContent='主题总览 / Introduction';
+      $('content').innerHTML=`<p class="eyebrow">THE BIG PICTURE / 主题总览</p><h1>${esc(model.title)}</h1><p class="subtitle">${esc(model.subtitle||'')}</p><p class="lead">${esc(model.intro)}</p><div class="count-line"><span>${model.sections.length} 个大章节</span><span>${model.topics.length} 个专题</span><span>图解 · 依据 · 可编辑</span></div><section class="overview-summary"><h2>先把整件事说清楚</h2><p>${esc(model.summary)}</p></section><h2>内容地图</h2><p>先看每个大主题的简介和总结，再进入需要的小节。</p><div class="content-map">${model.sections.map(row).join('')}</div>${sourceList()}`;
+    }else if(isTopic()){
+      const section=model.sections.find(s=>s.id===item.section);$('breadcrumb').textContent=section.title+' / '+item.title;
+      const index=model.topics.indexOf(item),next=model.topics[index+1];
+      $('content').innerHTML=`<p class="eyebrow">${esc(section.title)}</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><div id="editable-body" class="note-body" ${editing?'contenteditable="true" spellcheck="false"':''}>${safeBody(item.body)}</div>${sourceList(item.sources||[])}<nav class="page-nav"><a href="#${esc(section.id)}">← 大主题介绍与总结</a>${next?`<a href="#${esc(next.id)}">下一节：${esc(next.title)} →</a>`:'<a href="#home">回到整体总结 →</a>'}</nav>`;
+      window.NotemakerWidgets?.init($('content'));
+      if(editing)$('editable-body').addEventListener('input',markDirty);
+    }else{
+      $('breadcrumb').textContent=item.title+' / 大主题概览';
+      $('content').innerHTML=`<p class="eyebrow">SECTION OVERVIEW / 大主题介绍</p><h1>${esc(item.title)}</h1><p class="lead">${esc(item.intro)}</p><section class="overview-summary"><h2>这一部分的总结</h2><p>${esc(item.summary)}</p></section><h2>再看具体内容</h2><div class="content-map">${model.topics.filter(t=>t.section===item.id).map(row).join('')}</div><nav class="page-nav"><a href="#home">← 整体介绍与总结</a></nav>`;
+    }
+  }
+  function route(){
+    if(saving)return;
+    collect();let id;try{id=decodeURIComponent(location.hash.slice(1))||'home';}catch{id='home';}
+    active=model.topics.some(t=>t.id===id)||model.sections.some(s=>s.id===id)?id:'home';
+    render();$('sidebar').classList.remove('open');$('shade').hidden=true;$('menu').setAttribute('aria-expanded','false');
+    window.scrollTo(0,0);
+  }
+  function filename(){return model.title.replace(/[<>:"/\\|?*\x00-\x1f]/g,'-').slice(0,90)+'.html';}
+  function serialized(candidate){
+    const copy=document.documentElement.cloneNode(true);
+    copy.querySelector('#notemaker-data').textContent=JSON.stringify(candidate).replaceAll('<','\\u003c');
+    for(const id of ['content','navigation'])copy.querySelector('#'+id).replaceChildren();
+    copy.querySelector('#editor-panel').hidden=true;copy.querySelector('#image-dialog').removeAttribute('open');copy.querySelector('#large-image').removeAttribute('src');
+    copy.querySelector('#large-caption').textContent='';copy.querySelector('#sidebar').classList.remove('open');copy.querySelector('#shade').hidden=true;
+    for(const input of copy.querySelectorAll('#editor-panel input,#editor-panel textarea')){input.removeAttribute('value');input.textContent='';}
+    for(const field of copy.querySelectorAll('[disabled]'))field.removeAttribute('disabled');
+    return '<!doctype html>\n'+copy.outerHTML;
+  }
+  function freeze(value){
+    saving=value;for(const el of document.querySelectorAll('button,input,select,textarea'))el.disabled=value;
+    if($('editable-body'))$('editable-body').setAttribute('contenteditable',String(!value&&editing));
+  }
+  function candidate(){collect();const result=clone(model);result.meta={...(result.meta||{}),exportedAt:new Date().toISOString(),generator:'notemaker/1.0'};return result;}
+  async function nativeSave(saveAs=false){
+    if(saving)return;
+    if(typeof window.showSaveFilePicker!=='function'||!window.isSecureContext){download();return;}
+    const value=candidate();const text=serialized(value);freeze(true);let stream;
+    try{
+      const target=(!saveAs&&fileHandle)||await window.showSaveFilePicker({suggestedName:filename(),types:[{description:'Notemaker HTML',accept:{'text/html':['.html']}}]});
+      stream=await target.createWritable();await stream.write(text);await stream.close();stream=null;
+      fileHandle=target;model=value;snapshot=clone(model);dirty=false;editing=false;
+      status('已写入本地文件：'+target.name+'。写入已完成，可重新打开核对。');render();
+    }catch(error){
+      if(stream){try{await stream.abort();}catch{}}
+      status(error.name==='AbortError'?'保存已取消；修改仍在当前页面，尚未保存。':'没有保存成功：'+(error.message||error.name)+'。修改仍在；可重试或下载 HTML 副本。',true);
+    }finally{freeze(false);}
+  }
+  function download(){
+    if(saving)return;
+    const value=candidate(),text=serialized(value),url=URL.createObjectURL(new Blob([text],{type:'text/html;charset=utf-8'}));
+    const anchor=document.createElement('a');anchor.href=url;anchor.download=filename();anchor.hidden=true;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    status('已请求下载完整 HTML；请重新打开下载的文件核对。当前页面无法确认下载完成，也没有覆盖原文件。');
+    // A download cannot prove disk completion; preserve the current unsaved flag.
+  }
+  $('edit').addEventListener('click',()=>{snapshot=clone(model);editing=true;dirty=false;render();status('编辑模式：修改正文或上方设置，完成后点击 Save；刷新前请保存。');});
+  $('cancel').addEventListener('click',()=>{model=clone(snapshot);editing=false;dirty=false;render();status('已放弃本轮修改；本地文件未改动。');});
+  $('apply').addEventListener('click',()=>{collect();render();status('预览已更新，尚未保存到文件。');});
+  $('save').addEventListener('click',()=>nativeSave(false));$('save-as').addEventListener('click',()=>nativeSave(true));$('export').addEventListener('click',download);
+  $('editor-panel').addEventListener('input',event=>{if(event.target.id!=='image-input')markDirty();});
+  $('theme').addEventListener('change',()=>{collect();appearance();});$('accent').addEventListener('change',()=>{collect();appearance();});$('font-scale').addEventListener('change',()=>{collect();appearance();});
+  $('add-section').addEventListener('click',()=>{
+    collect();const id='section-'+Date.now().toString(36);model.sections.push({id,title:'新的大主题',intro:'请介绍这一主题的背景、范围和读者要回答的问题。',summary:'请总结这一主题的重要结论与尚不明确之处。'});markDirty();location.hash=id;
+  });
+  $('add-topic').addEventListener('click',()=>{
+    collect();const section=isTopic()?current().section:active==='home'?model.sections[0].id:active;
+    const id='topic-'+Date.now().toString(36);model.topics.push({id,section,title:'新的小节',intro:'这一节要回答什么问题？',body:'<h2>先说清楚</h2><p>点击这里开始写下你的解释、记录或观察。</p>',sources:[]});markDirty();location.hash=id;
+  });
+  $('delete-topic').addEventListener('click',()=>{
+    if(!isTopic()||model.topics.length<=1){status('至少保留一个小节。',true);return;}
+    if(!confirm('删除当前小节？点击 Save 前仍可通过取消恢复。'))return;
+    const section=current().section;model.topics=model.topics.filter(t=>t.id!==active);markDirty();active='home';render();location.hash=section;
+  });
+  $('image-input').addEventListener('change',async event=>{
+    const file=event.target.files?.[0],target=active;if(!file||!editing||!isTopic())return;
+    if(file.size>10*1024*1024){status('图片大于 10 MiB，请先压缩。',true);return;}
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    const mime=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71?'image/png':bytes[0]===255&&bytes[1]===216&&bytes[2]===255?'image/jpeg':String.fromCharCode(...bytes.slice(0,6)).match(/^GIF8[79]a$/)?'image/gif':String.fromCharCode(...bytes.slice(0,4))==='RIFF'&&String.fromCharCode(...bytes.slice(8,12))==='WEBP'?'image/webp':null;
+    if(!mime){status('这不是支持的 PNG/JPEG/GIF/WebP 图片。',true);return;}
+    if(!editing||saving||target!==active){status('页面已切换，请在目标小节重新选择图片。');return;}
+    let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.slice(i,i+8192));
+    const figure=document.createElement('figure'),img=document.createElement('img'),caption=document.createElement('figcaption');
+    img.src='data:'+mime+';base64,'+btoa(binary);img.alt=file.name;caption.textContent='图片：'+file.name+'（点击编辑图注与来源）';figure.append(img,caption);$('editable-body').append(figure);markDirty();event.target.value='';
+  });
+  $('content').addEventListener('paste',event=>{
+    if(!editing||!event.target.closest('[contenteditable=true]'))return;
+    event.preventDefault();const text=event.clipboardData.getData('text/plain'),selection=window.getSelection();
+    if(selection.rangeCount){const range=selection.getRangeAt(0);range.deleteContents();const node=document.createTextNode(text);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection.removeAllRanges();selection.addRange(range);markDirty();}
+  });
+  $('content').addEventListener('click',async event=>{
+    const img=event.target.closest('img');
+    if(img&&!editing){$('large-image').src=img.src;$('large-image').alt=img.alt;$('large-caption').textContent=img.closest('figure')?.querySelector('figcaption')?.textContent||img.alt;$('image-dialog').showModal();}
+    const button=event.target.closest('.copy-code');
+    if(button){const code=button.closest('.codebox')?.querySelector('code'),text=code?.dataset.source||code?.textContent||'';try{await navigator.clipboard.writeText(text);status('代码已复制。');}catch{status('浏览器未允许复制，请选中代码手动复制。',true);}}
+  });
+  $('close-image').addEventListener('click',()=>$('image-dialog').close());
+  $('image-dialog').addEventListener('close',()=>$('large-image').removeAttribute('src'));
+  $('search').addEventListener('input',nav);$('print').addEventListener('click',()=>{collect();window.print();});
+  $('menu').addEventListener('click',()=>{const open=$('sidebar').classList.toggle('open');$('shade').hidden=!open;$('menu').setAttribute('aria-expanded',String(open));});
+  $('shade').addEventListener('click',()=>{$('sidebar').classList.remove('open');$('shade').hidden=true;$('menu').setAttribute('aria-expanded','false');});
+  document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();if(editing)nativeSave(event.shiftKey);}if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();$('search').focus();}});
+  document.addEventListener('click',event=>{if(saving&&event.target.closest('a'))event.preventDefault();});
+  window.addEventListener('beforeunload',event=>{if(dirty||saving){event.preventDefault();event.returnValue='';}});
+  window.addEventListener('hashchange',route);
+  window.Notemaker=Object.freeze({getModel:()=>{collect();return clone(model);},exportHTML:()=>serialized(candidate())});
+  route();
+})();
+</script></body></html>
